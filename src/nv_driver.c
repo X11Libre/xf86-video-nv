@@ -1295,7 +1295,7 @@ nvProbeDDC(ScrnInfoPtr pScrn, int index)
 
 Bool NVI2CInit(ScrnInfoPtr pScrn)
 {
-    char *mod = "i2c";
+    const char *mod = "i2c";
 
     if (xf86LoadSubModule(pScrn, mod)) {
 

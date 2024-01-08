@@ -316,7 +316,7 @@ rivaProbeDDC(ScrnInfoPtr pScrn, int index)
 
 Bool RivaI2CInit(ScrnInfoPtr pScrn)
 {
-    char *mod = "i2c";
+    const char *mod = "i2c";
 
     if (xf86LoadSubModule(pScrn, mod)) {
 
