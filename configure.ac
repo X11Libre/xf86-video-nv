@@ -41,8 +41,7 @@ AC_CONFIG_AUX_DIR(.)
 AM_INIT_AUTOMAKE([foreign dist-xz])
 
 # Initialize libtool
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+LT_INIT([disable-static])
 
 AH_TOP([#include "xorg-server.h"])
 
