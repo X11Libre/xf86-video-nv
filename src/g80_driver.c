@@ -163,7 +163,7 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
     Bool primary;
     const rgb zeros = {0, 0, 0};
     const Gamma gzeros = {0.0, 0.0, 0.0};
-    char *s;
+    const char *s;
     CARD32 tmp;
     memType BAR1sizeKB;
 
