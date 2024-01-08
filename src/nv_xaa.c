@@ -291,6 +291,7 @@ void NVSync(ScrnInfoPtr pScrn)
     while(pNv->PGRAPH[0x0700/4]);
 }
 
+#ifdef HAVE_XAA_H
 static void
 NVDMAKickoffCallback (ScrnInfoPtr pScrn)
 {
@@ -300,7 +301,6 @@ NVDMAKickoffCallback (ScrnInfoPtr pScrn)
    pNv->DMAKickoffCallback = NULL;
 }
 
-#ifdef HAVE_XAA_H
 static void
 NVSetupForScreenToScreenCopy(
    ScrnInfoPtr pScrn, 
