@@ -294,7 +294,9 @@ G80DispPreInit(ScrnInfoPtr pScrn)
 {
     G80Ptr pNv = G80PTR(pScrn);
 
+    /* nouveau guys dont know what this does */
     pNv->reg[0x00610184/4] = pNv->reg[0x00614004/4];
+    /* CRTC capabilities */
     pNv->reg[0x00610190/4] = pNv->reg[0x00616100/4];
     pNv->reg[0x006101a0/4] = pNv->reg[0x00616900/4];
     pNv->reg[0x00610194/4] = pNv->reg[0x00616104/4];
@@ -303,13 +305,17 @@ G80DispPreInit(ScrnInfoPtr pScrn)
     pNv->reg[0x006101a8/4] = pNv->reg[0x00616908/4];
     pNv->reg[0x0061019C/4] = pNv->reg[0x0061610C/4];
     pNv->reg[0x006101ac/4] = pNv->reg[0x0061690c/4];
+    /* DAC capabilities */
     pNv->reg[0x006101D0/4] = pNv->reg[0x0061A000/4];
     pNv->reg[0x006101D4/4] = pNv->reg[0x0061A800/4];
     pNv->reg[0x006101D8/4] = pNv->reg[0x0061B000/4];
+    /* SOR capabilities */
     pNv->reg[0x006101E0/4] = pNv->reg[0x0061C000/4];
     pNv->reg[0x006101E4/4] = pNv->reg[0x0061C800/4];
     pNv->reg[0x006101E8/4] = pNv->reg[0x0061D000/4];
     pNv->reg[0x006101EC/4] = pNv->reg[0x0061D800/4];
+
+    /* Setting the rest of the capabilities */
     pNv->reg[0x0061A004/4] = 0x80550000;
     pNv->reg[0x0061A010/4] = 0x00000001;
     pNv->reg[0x0061A804/4] = 0x80550000;
