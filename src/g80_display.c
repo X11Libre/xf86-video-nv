@@ -320,6 +320,42 @@ G80DispPreInit(ScrnInfoPtr pScrn)
     return TRUE;
 }
 
+#if 0
+Bool
+GF119DispPreInit(ScrnInfoPtr pScrn)
+{
+    G80Ptr pNv = G80PTR(pScrn);
+    xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(pScrn);
+
+    /* CRTC capabilities */
+    for(int i = 0; i < xf86_config->num_crtc; i++) {
+        xf86CrtcPtr crtc = xf86_config->crtc[i];
+        const int headOff = 0x800 * G80CrtcGetHead(crtc);
+
+        pNv->reg[(0x006101b4 + headOff)/4] = pNv->reg[(0x00616104 + headOff)/4];
+        pNv->reg[(0x006101b8 + headOff)/4] = pNv->reg[(0x00616108 + headOff)/4];
+        pNv->reg[(0x006101bc + headOff)/4] = pNv->reg[(0x0061610c + headOff)/4];
+
+    }
+    /* DAC capabilities */
+    pNv->reg[0x006101C0/4] = pNv->reg[0x0061A000/4];
+    pNv->reg[0x006109C0/4] = pNv->reg[0x0061A800/4];
+    pNv->reg[0x006111C0/4] = pNv->reg[0x0061B000/4];
+    /* SOR capabilities */
+    pNv->reg[0x006101C0/4] = pNv->reg[0x0061C000/4];
+    pNv->reg[0x006109C0/4] = pNv->reg[0x0061C800/4];
+    pNv->reg[0x006111C0/4] = pNv->reg[0x0061D000/4];
+    pNv->reg[0x006119C0/4] = pNv->reg[0x0061D800/4];
+
+    /* Setting the rest of the capabilities, copied from nouveau */
+    pNv->reg[0x610090] = 0x00000000;
+    pNv->reg[0x6100a0] = 0x00000000;
+    pNv->reg[0x6100b0] = 0x00000307;
+
+    return TRUE;
+}
+#endif
+
 Bool
 G80DispInit(ScrnInfoPtr pScrn)
 {
