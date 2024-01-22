@@ -836,6 +836,7 @@ NVGetPCIXpressChip (pciVideoPtr pVideo)
 static Bool
 NVIsG80(int chipType)
 {
+    /* XXX: What is GeForce 505 OEMs? */
     switch(chipType & 0xfff0) {
         case 0x0190:
         case 0x0400:
@@ -854,12 +855,15 @@ NVIsG80(int chipType)
         case 0x0850:
         case 0x0860:
         case 0x0870:
+        case 0x08a0: /* GT 320M hopefully... */
         case 0x0a20:
         case 0x0a30:
         case 0x0a60:
         case 0x0a70:
         case 0x0ca0:
         case 0x0cb0:
+	case 0x10c0:
+        case 0x10d0:
             return TRUE;
     }
 
