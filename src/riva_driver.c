@@ -385,7 +385,7 @@ RivaPreInit(ScrnInfoPtr pScrn, int flags)
  
     /* Find the PCI info for this screen */
     pRiva->PciInfo = xf86GetPciInfoForEntity(pRiva->pEnt->index);
-#if !XSERVER_LIBPCIACCESS
+#ifndef XSERVER_LIBPCIACCESS
     pRiva->PciTag = pciTag(pRiva->PciInfo->bus, pRiva->PciInfo->device,
 			  pRiva->PciInfo->func);
 #endif
@@ -825,7 +825,7 @@ RivaMapMem(ScrnInfoPtr pScrn)
     /*
      * Map IO registers to virtual address space
      */ 
-#if XSERVER_LIBPCIACCESS
+#ifdef XSERVER_LIBPCIACCESS
     void *tmp;
 
     pci_device_map_range(pRiva->PciInfo, pRiva->IOAddress, 0x1000000,
@@ -890,7 +890,7 @@ RivaUnmapMem(ScrnInfoPtr pScrn)
     /*
      * Unmap IO registers to virtual address space
      */ 
-#if XSERVER_LIBPCIACCESS
+#ifdef XSERVER_LIBPCIACCESS
     pci_device_unmap_range(pRiva->PciInfo, pRiva->IOBase, 0x1000000);
     pci_device_unmap_range(pRiva->PciInfo, pRiva->FbBase, pRiva->FbMapSize);
 #else
