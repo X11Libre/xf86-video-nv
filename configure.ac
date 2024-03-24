@@ -23,8 +23,8 @@
 # Initialize Autoconf
 AC_PREREQ([2.60])
 AC_INIT([xf86-video-nv],
-        [2.1.22],
-        [https://gitlab.freedesktop.org/xorg/driver/xf86-video-nv/issues],
+        [2.1.23],
+        [https://gitlab.freedesktop.org/xorg/driver/xf86-video-nv/-/issues],
         [xf86-video-nv])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS([config.h])
