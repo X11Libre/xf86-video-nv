@@ -281,9 +281,12 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
         xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "Acceleration disabled\n");
     }
     s = xf86GetOptValString(pNv->Options, OPTION_ACCEL_METHOD);
+#ifdef HAVE_XAA_H
     if(!s || !strcasecmp(s, "xaa"))
         pNv->AccelMethod = XAA;
-    else if(!strcasecmp(s, "exa"))
+    else
+#endif
+    if(!strcasecmp(s, "exa"))
         pNv->AccelMethod = EXA;
     else {
         xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "Unrecognized AccelMethod "
