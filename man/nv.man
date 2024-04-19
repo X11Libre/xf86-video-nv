@@ -20,6 +20,11 @@ visual types are supported for depth 8, TrueColor and DirectColor
 visuals are supported for the other depths with the exception of
 the Riva128 which only supports TrueColor in the higher depths. 
 
+You may report issues on the gitlab, along with your associated distrubution's
+bugtracker, the gitlab can be found here:
+
+https://gitlab.freedesktop.org/xorg/driver/xf86-video-nv/-/issues
+
 .SH SUPPORTED HARDWARE
 The
 .B nv
