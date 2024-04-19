@@ -854,6 +854,7 @@ NVIsG80(int chipType)
         case 0x0850:
         case 0x0860:
         case 0x0870:
+        case 0x08a0: /* GT 320M hopefully... */
         case 0x0a20:
         case 0x0a30:
         case 0x0a60:
