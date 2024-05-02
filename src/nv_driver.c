@@ -876,6 +876,7 @@ NVIsSupported(CARD32 id)
     case 0x0090:
     case 0x00C0:
     case 0x0120:
+    case 0x00F0:
     case 0x0140:
     case 0x0160:
     case 0x0170:
@@ -1838,6 +1839,29 @@ NVPreInit(ScrnInfoPtr pScrn, int flags)
     case 0x03D0:
          pNv->Architecture =  NV_ARCH_40;
          break;
+    case 0x00F0:
+         switch (pNv->Chipset & 0xf) {
+         case 0x1: /* GeForce 6600 GT */
+         case 0x2: /* GeForce 6600 */
+         case 0x3: /* GeForce 6200 */
+         case 0x4: /* GeForce 6600 LE */
+         case 0x5: /* GeForce 7800 GS */
+         case 0x6: /* GeForce 6800 GS/XT */
+         case 0x8: /* Quadro FX 3400/4400 */
+         case 0x9: /* GeForce 6800 GT/GTO/Ultra */
+              pNv->Architecture =  NV_ARCH_40;
+              break;
+         case 0xa:
+         case 0xb:
+         case 0xc:
+         case 0xd:
+         case 0xe:
+              pNv->Architecture =  NV_ARCH_30;
+              break;
+         case 0xf:
+              pNv->Architecture =  NV_ARCH_10;
+              break;
+         }
     default:
          pNv->Architecture =  NV_ARCH_04;
          break;
