@@ -108,7 +108,7 @@ RivaGetRec(ScrnInfoPtr pScrn)
     if (pScrn->driverPrivate != NULL)
         return TRUE;
 
-    pScrn->driverPrivate = xnfcalloc(sizeof(RivaRec), 1);
+    pScrn->driverPrivate = XNFcallocarray(sizeof(RivaRec), 1);
     /* Initialise it */
 
     RivaPTR(pScrn)->Dac = DacInit;
@@ -695,7 +695,7 @@ RivaPreInit(ScrnInfoPtr pScrn, int flags)
     pRiva->MinClock = 12000;
     pRiva->MaxClock = pRiva->riva.MaxVClockFreqKHz;
 
-    clockRanges = xnfcalloc(sizeof(ClockRange), 1);
+    clockRanges = XNFcallocarray(sizeof(ClockRange), 1);
     clockRanges->next = NULL;
     clockRanges->minClock = pRiva->MinClock;
     clockRanges->maxClock = pRiva->MaxClock;
