@@ -518,7 +518,7 @@ RivaAccelInit(ScreenPtr pScreen)
     
     /* Allocate buffer for color expansion and also image writes in the
        future */
-    pRiva->expandBuffer = xnfalloc(((pScrn->virtualX*pScrn->bitsPerPixel)/8) + 8);
+    pRiva->expandBuffer = XNFalloc(((pScrn->virtualX*pScrn->bitsPerPixel)/8) + 8);
 
 
     infoPtr->ScanlineColorExpandBuffers = &pRiva->expandBuffer;
