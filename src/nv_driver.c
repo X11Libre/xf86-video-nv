@@ -33,6 +33,15 @@
 #include "xf86int10.h"
 #include "vbeModes.h"
 
+/*
+ * nv will refuse to work whenever there's a driver other than vga attached to
+ * the device we're trying to probe, yet nv works fine on top of gffb or
+ * genfb on NetBSD
+ */
+#ifndef __NetBSD__
+#define NV_TEST_FOR_KERNEL_DRIVER 1
+#endif
+
 const   OptionInfoRec * RivaAvailableOptions(int chipid, int busid);
 Bool    RivaGetScrnInfoRec(PciChipsets *chips, int chip);
 Bool    G80GetScrnInfoRec(PciChipsets *chips, int chip);
@@ -913,6 +922,7 @@ NVPciProbe(DriverPtr drv, int entity, struct pci_device *dev, intptr_t data)
                       NVGetPCIXpressChip(dev) : dev->vendor_id << 16 | dev->device_id;
     const char *name = xf86TokenToString(NVKnownChipsets, id);
 
+#ifdef NV_TEST_FOR_KERNEL_DRIVER
     if (pci_device_has_kernel_driver(dev)) {
         xf86DrvMsg(0, X_ERROR,
                    NV_NAME ": The PCI device 0x%x (%s) at %2.2d@%2.2d:%2.2d:%1.1d has a kernel module claiming it.\n",
@@ -921,6 +931,7 @@ NVPciProbe(DriverPtr drv, int entity, struct pci_device *dev, intptr_t data)
                    NV_NAME ": This driver cannot operate until it has been unloaded.\n");
         return FALSE;
     }
+#endif
 
     if(dev->vendor_id == PCI_VENDOR_NVIDIA && !name &&
        !NVIsSupported(id) && !NVIsG80(id)) {
