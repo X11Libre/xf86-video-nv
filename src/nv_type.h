@@ -135,7 +135,7 @@ typedef struct {
     int                 DGAViewportStatus;
     CreateScreenResourcesProcPtr CreateScreenResources;
     RefreshAreaFuncPtr refreshArea;
-    void		(*PointerMoved)(SCRN_ARG_TYPE arg, int x, int y);
+    void		(*PointerMoved)(ScrnInfoPtr pScrn, int x, int y);
     ScreenBlockHandlerProcPtr BlockHandler;
     CloseScreenProcPtr  CloseScreen;
     xf86EnableDisableFBAccessProc *EnableDisableFBAccess;

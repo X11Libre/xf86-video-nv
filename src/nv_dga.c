@@ -201,8 +201,8 @@ NV_SetMode(
         memcpy(&pNv->CurrentLayout, &SavedLayouts[index], sizeof(NVFBLayout));
                 
       pScrn->currentMode = pNv->CurrentLayout.mode;
-      NVSwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode));
-      NVAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+      NVSwitchMode(pScrn, pScrn->currentMode);
+      NVAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
       pNv->DGAactive = FALSE;
    } else {
       if(!pNv->DGAactive) {  /* save the old parameters */
@@ -219,7 +219,7 @@ NV_SetMode(
       pNv->CurrentLayout.weight.green = BitsSet(pMode->green_mask);
       pNv->CurrentLayout.weight.blue = BitsSet(pMode->blue_mask);
       /* NVModeInit() will set the mode field */
-      NVSwitchMode(SWITCH_MODE_ARGS(pScrn, pMode->mode));
+      NVSwitchMode(pScrn, pMode->mode);
    }
    
    return TRUE;
@@ -244,7 +244,7 @@ NV_SetViewport(
 ){
    NVPtr pNv = NVPTR(pScrn);
 
-   NVAdjustFrame(ADJUST_FRAME_ARGS(pScrn, x, y));
+   NVAdjustFrame(pScrn, x, y);
 
    while(VGA_RD08(pNv->PCIO, 0x3da) & 0x08);
    while(!(VGA_RD08(pNv->PCIO, 0x3da) & 0x08));

@@ -90,7 +90,7 @@ typedef struct {
     void                (*Save)(ScrnInfoPtr, vgaRegPtr, RivaRegPtr, Bool);
     void                (*Restore)(ScrnInfoPtr, vgaRegPtr, RivaRegPtr, Bool);
     Bool                (*ModeInit)(ScrnInfoPtr, DisplayModePtr);
-    void		(*PointerMoved)(SCRN_ARG_TYPE arg, int x, int y);
+    void		(*PointerMoved)(ScrnInfoPtr pScrn, int x, int y);
     CloseScreenProcPtr  CloseScreen;
     Bool                FBDev;
     /* Color expansion */
@@ -121,7 +121,7 @@ void RivaRefreshArea(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void RivaRefreshArea8(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void RivaRefreshArea16(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void RivaRefreshArea32(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void RivaPointerMoved(SCRN_ARG_TYPE arg, int x, int y);
+void RivaPointerMoved(ScrnInfoPtr pScrn, int x, int y);
 
 int RivaGetConfig(RivaPtr);
 
