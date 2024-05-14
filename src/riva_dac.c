@@ -224,11 +224,7 @@ RivaDACLoadPalette(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
 static void
 Riva_I2CGetBits(I2CBusPtr b, int *clock, int *data)
 {
-#ifdef XF86_SCRN_INTERFACE
     RivaPtr pRiva = RivaPTR(b->pScrn);
-#else
-    RivaPtr pRiva = RivaPTR(xf86Screens[b->scrnIndex]);
-#endif
     unsigned char val;
 
     /* Get the result. */
@@ -242,11 +238,7 @@ Riva_I2CGetBits(I2CBusPtr b, int *clock, int *data)
 static void
 Riva_I2CPutBits(I2CBusPtr b, int clock, int data)
 {
-#ifdef XF86_SCRN_INTERFACE
     RivaPtr pRiva = RivaPTR(b->pScrn);
-#else
-    RivaPtr pRiva = RivaPTR(xf86Screens[b->scrnIndex]);
-#endif
     unsigned char val;
 
     VGA_WR08(pRiva->riva.PCIO, 0x3d4, pRiva->DDCBase + 1);
@@ -278,9 +270,7 @@ RivaDACi2cInit(ScrnInfoPtr pScrn)
 
     I2CPtr->BusName    = "DDC";
     I2CPtr->scrnIndex  = pScrn->scrnIndex;
-#ifdef XF86_SCRN_INTERFACE
     I2CPtr->pScrn = pScrn;
-#endif
     I2CPtr->I2CPutBits = Riva_I2CPutBits;
     I2CPtr->I2CGetBits = Riva_I2CGetBits;
     I2CPtr->AcknTimeout = 5;

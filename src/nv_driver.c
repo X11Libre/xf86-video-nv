@@ -60,16 +60,16 @@ static Bool    NVPciProbe(DriverPtr, int entity, struct pci_device*, intptr_t da
 static Bool    NVProbe(DriverPtr drv, int flags);
 #endif
 static Bool    NVPreInit(ScrnInfoPtr pScrn, int flags);
-static Bool    NVScreenInit(SCREEN_INIT_ARGS_DECL);
-static Bool    NVEnterVT(VT_FUNC_ARGS_DECL);
-static Bool    NVEnterVTFBDev(VT_FUNC_ARGS_DECL);
-static void    NVLeaveVT(VT_FUNC_ARGS_DECL);
-static Bool    NVCloseScreen(CLOSE_SCREEN_ARGS_DECL);
+static Bool    NVScreenInit(ScreenPtr pScreen, int argc, char **argv);
+static Bool    NVEnterVT(ScrnInfoPtr pScrn);
+static Bool    NVEnterVTFBDev(ScrnInfoPtr pScrn);
+static void    NVLeaveVT(ScrnInfoPtr pScrn);
+static Bool    NVCloseScreen(ScreenPtr pScreen);
 static Bool    NVSaveScreen(ScreenPtr pScreen, int mode);
 
 /* Optional functions */
-static void    NVFreeScreen(FREE_SCREEN_ARGS_DECL);
-static ModeStatus NVValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode,
+static void    NVFreeScreen(ScrnInfoPtr pScrn);
+static ModeStatus NVValidMode(ScrnInfoPtr pScrn, DisplayModePtr mode,
 			      Bool verbose, int flags);
 #ifdef RANDR
 static Bool    NVDriverFunc(ScrnInfoPtr pScrnInfo, xorgDriverFuncOp op,
@@ -1068,31 +1068,28 @@ NVProbe(DriverPtr drv, int flags)
 
 /* Usually mandatory */
 Bool
-NVSwitchMode(SWITCH_MODE_ARGS_DECL)
+NVSwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode)
 {
-    SCRN_INFO_PTR(arg);
-
     NVSync(pScrn);
     return NVModeInit(pScrn, mode);
 }
 
 static Bool
-NVSwitchModeVBE(SWITCH_MODE_ARGS_DECL)
+NVSwitchModeVBE(ScrnInfoPtr pScrn, DisplayModePtr mode)
 {
-    SCRN_INFO_PTR(arg);
     NVPtr pNv = NVPTR(pScrn);
     const Bool disableAccess = pNv->accessEnabled;
 
     if(disableAccess)
-	pScrn->EnableDisableFBAccess(XF86_SCRN_ARG(pScrn), FALSE);
+	pScrn->EnableDisableFBAccess(pScrn, FALSE);
 
     NVSync(pScrn);
     if (!NVSetModeVBE(pScrn, mode))
         return FALSE;
-    NVAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    NVAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
 
     if(disableAccess)
-        pScrn->EnableDisableFBAccess(XF86_SCRN_ARG(pScrn), TRUE);
+        pScrn->EnableDisableFBAccess(pScrn, TRUE);
 
     return TRUE;
 }
@@ -1103,9 +1100,8 @@ NVSwitchModeVBE(SWITCH_MODE_ARGS_DECL)
  */
 /* Usually mandatory */
 void 
-NVAdjustFrame(ADJUST_FRAME_ARGS_DECL)
+NVAdjustFrame(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     int startAddr;
     NVPtr pNv = NVPTR(pScrn);
     NVFBLayout *pLayout = &pNv->CurrentLayout;
@@ -1124,14 +1120,13 @@ NVAdjustFrame(ADJUST_FRAME_ARGS_DECL)
 
 /* Mandatory */
 static Bool
-NVEnterVT(VT_FUNC_ARGS_DECL)
+NVEnterVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     NVPtr pNv = NVPTR(pScrn);
 
     if (!NVModeInit(pScrn, pScrn->currentMode))
         return FALSE;
-    NVAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    NVAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
 
     if(pNv->overlayAdaptor)
         NVResetVideo(pScrn);
@@ -1139,21 +1134,18 @@ NVEnterVT(VT_FUNC_ARGS_DECL)
 }
 
 static Bool
-NVEnterVTFBDev(VT_FUNC_ARGS_DECL)
+NVEnterVTFBDev(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
-    fbdevHWEnterVT(VT_FUNC_ARGS);
+    fbdevHWEnterVT(pScrn);
     return TRUE;
 }
 
 static Bool
-NVEnterVTVBE(VT_FUNC_ARGS_DECL)
+NVEnterVTVBE(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
-
     if (!NVSetModeVBE(pScrn, pScrn->currentMode))
         return FALSE;
-    NVAdjustFrame(ADJUST_FRAME_ARGS(pScrn, 0, 0));
+    NVAdjustFrame(pScrn, 0, 0);
     return TRUE;
 }
 
@@ -1166,9 +1158,8 @@ NVEnterVTVBE(VT_FUNC_ARGS_DECL)
 
 /* Mandatory */
 static void
-NVLeaveVT(VT_FUNC_ARGS_DECL)
+NVLeaveVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     NVPtr pNv = NVPTR(pScrn);
 
     NVSync(pScrn);
@@ -1177,10 +1168,8 @@ NVLeaveVT(VT_FUNC_ARGS_DECL)
 }
 
 static void
-NVLeaveVTVBE(VT_FUNC_ARGS_DECL)
+NVLeaveVTVBE(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
-
     NVSync(pScrn);
     NVSaveRestoreVBE(pScrn, MODE_RESTORE);
 }
@@ -1188,7 +1177,6 @@ NVLeaveVTVBE(VT_FUNC_ARGS_DECL)
 static void 
 NVBlockHandler (BLOCKHANDLER_ARGS_DECL)
 {
-    SCREEN_PTR(arg);
     ScrnInfoPtr   pScrnInfo = xf86ScreenToScrn(pScreen);
     NVPtr         pNv = NVPTR(pScrnInfo);
 
@@ -1214,7 +1202,7 @@ NVBlockHandler (BLOCKHANDLER_ARGS_DECL)
 
 /* Mandatory */
 static Bool
-NVCloseScreen(CLOSE_SCREEN_ARGS_DECL)
+NVCloseScreen(ScreenPtr pScreen)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     NVPtr pNv = NVPTR(pScrn);
@@ -1251,17 +1239,16 @@ NVCloseScreen(CLOSE_SCREEN_ARGS_DECL)
     pScrn->vtSema = FALSE;
     pScreen->CloseScreen = pNv->CloseScreen;
     pScreen->BlockHandler = pNv->BlockHandler;
-    return (*pScreen->CloseScreen)(CLOSE_SCREEN_ARGS);
+    return (*pScreen->CloseScreen)(pScreen);
 }
 
 static void
-NVEnableDisableFBAccess(SCRN_ARG_TYPE arg, Bool enable)
+NVEnableDisableFBAccess(ScrnInfoPtr pScrn, Bool enable)
 {
-    SCRN_INFO_PTR(arg);
     NVPtr pNv = NVPTR(pScrn);
 
     pNv->accessEnabled = enable;
-    pNv->EnableDisableFBAccess(arg, enable);
+    pNv->EnableDisableFBAccess(pScrn, enable);
 }
 
 
@@ -1269,9 +1256,8 @@ NVEnableDisableFBAccess(SCRN_ARG_TYPE arg, Bool enable)
 
 /* Optional */
 static void
-NVFreeScreen(FREE_SCREEN_ARGS_DECL)
+NVFreeScreen(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     /*
      * This only gets called when a screen is being deleted.  It does not
      * get called routinely at the end of a server generation.
@@ -1286,9 +1272,8 @@ NVFreeScreen(FREE_SCREEN_ARGS_DECL)
 
 /* Optional */
 static ModeStatus
-NVValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode, Bool verbose, int flags)
+NVValidMode(ScrnInfoPtr pScrn, DisplayModePtr mode, Bool verbose, int flags)
 {
-    SCRN_INFO_PTR(arg);
     NVPtr pNv = NVPTR(pScrn);
 
     if(pNv->fpWidth && pNv->fpHeight)
@@ -2468,7 +2453,7 @@ NVShadowInit(ScreenPtr pScreen)
 /* This gets called at the start of each server generation */
 
 static Bool
-NVScreenInit(SCREEN_INIT_ARGS_DECL)
+NVScreenInit(ScreenPtr pScreen, int argc, char **argv)
 {
     ScrnInfoPtr pScrn;
     vgaHWPtr hwp;
@@ -2523,7 +2508,7 @@ NVScreenInit(SCREEN_INIT_ARGS_DECL)
 
     /* Darken the screen for aesthetic reasons and set the viewport */
     NVSaveScreen(pScreen, SCREEN_SAVER_ON);
-    pScrn->AdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    pScrn->AdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
 
     /*
      * The next step is to setup the screen's visuals, and initialise the

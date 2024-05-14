@@ -37,16 +37,16 @@
  */
 /* Mandatory functions */
 static Bool    RivaPreInit(ScrnInfoPtr pScrn, int flags);
-static Bool    RivaScreenInit(SCREEN_INIT_ARGS_DECL);
-static Bool    RivaEnterVT(VT_FUNC_ARGS_DECL);
-static Bool    RivaEnterVTFBDev(VT_FUNC_ARGS_DECL);
-static void    RivaLeaveVT(VT_FUNC_ARGS_DECL);
-static Bool    RivaCloseScreen(CLOSE_SCREEN_ARGS_DECL);
+static Bool    RivaScreenInit(ScreenPtr pScreen, int argc, char **argv);
+static Bool    RivaEnterVT(ScrnInfoPtr pScrn);
+static Bool    RivaEnterVTFBDev(ScrnInfoPtr pScrn);
+static void    RivaLeaveVT(ScrnInfoPtr pScrn);
+static Bool    RivaCloseScreen(ScreenPtr pScreen);
 static Bool    RivaSaveScreen(ScreenPtr pScreen, int mode);
 
 /* Optional functions */
-static void    RivaFreeScreen(FREE_SCREEN_ARGS_DECL);
-static ModeStatus RivaValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode,
+static void    RivaFreeScreen(ScrnInfoPtr pScrn);
+static ModeStatus RivaValidMode(ScrnInfoPtr pScrn, DisplayModePtr mode,
 				Bool verbose, int flags);
 
 /* Internally used functions */
@@ -161,9 +161,8 @@ RivaGetScrnInfoRec(PciChipsets *chips, int chip)
 
 /* Usually mandatory */
 Bool
-RivaSwitchMode(SWITCH_MODE_ARGS_DECL)
+RivaSwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode)
 {
-    SCRN_INFO_PTR(arg);
     return RivaModeInit(pScrn, mode);
 }
 
@@ -173,9 +172,8 @@ RivaSwitchMode(SWITCH_MODE_ARGS_DECL)
  */
 /* Usually mandatory */
 void 
-RivaAdjustFrame(ADJUST_FRAME_ARGS_DECL)
+RivaAdjustFrame(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     int startAddr;
     RivaPtr pRiva = RivaPTR(pScrn);
     RivaFBLayout *pLayout = &pRiva->CurrentLayout;
@@ -197,22 +195,19 @@ RivaAdjustFrame(ADJUST_FRAME_ARGS_DECL)
 
 /* Mandatory */
 static Bool
-RivaEnterVT(VT_FUNC_ARGS_DECL)
+RivaEnterVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
-
     if (!RivaModeInit(pScrn, pScrn->currentMode))
         return FALSE;
-    RivaAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    RivaAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
 
     return TRUE;
 }
 
 static Bool
-RivaEnterVTFBDev(VT_FUNC_ARGS_DECL)
+RivaEnterVTFBDev(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
-    fbdevHWEnterVT(VT_FUNC_ARGS);
+    fbdevHWEnterVT(pScrn);
     return TRUE;
 }
 
@@ -225,9 +220,8 @@ RivaEnterVTFBDev(VT_FUNC_ARGS_DECL)
 
 /* Mandatory */
 static void
-RivaLeaveVT(VT_FUNC_ARGS_DECL)
+RivaLeaveVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     RivaPtr pRiva = RivaPTR(pScrn);
 
     RivaRestore(pScrn);
@@ -245,7 +239,7 @@ RivaLeaveVT(VT_FUNC_ARGS_DECL)
 
 /* Mandatory */
 static Bool
-RivaCloseScreen(CLOSE_SCREEN_ARGS_DECL)
+RivaCloseScreen(ScreenPtr pScreen)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     RivaPtr pRiva = RivaPTR(pScrn);
@@ -272,16 +266,15 @@ RivaCloseScreen(CLOSE_SCREEN_ARGS_DECL)
 
     pScrn->vtSema = FALSE;
     pScreen->CloseScreen = pRiva->CloseScreen;
-    return (*pScreen->CloseScreen)(CLOSE_SCREEN_ARGS);
+    return (*pScreen->CloseScreen)(pScreen);
 }
 
 /* Free up any persistent data structures */
 
 /* Optional */
 static void
-RivaFreeScreen(FREE_SCREEN_ARGS_DECL)
+RivaFreeScreen(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     /*
      * This only gets called when a screen is being deleted.  It does not
      * get called routinely at the end of a server generation.
@@ -296,7 +289,7 @@ RivaFreeScreen(FREE_SCREEN_ARGS_DECL)
 
 /* Optional */
 static ModeStatus
-RivaValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode, Bool verbose, int flags)
+RivaValidMode(ScrnInfoPtr arg, DisplayModePtr mode, Bool verbose, int flags)
 {
     return (MODE_OK);
 }
@@ -1005,7 +998,7 @@ RivaDPMSSet(ScrnInfoPtr pScrn, int PowerManagementMode, int flags)
 /* This gets called at the start of each server generation */
 
 static Bool
-RivaScreenInit(SCREEN_INIT_ARGS_DECL)
+RivaScreenInit(ScreenPtr pScreen, int argc, char **argv)
 {
     ScrnInfoPtr pScrn;
     vgaHWPtr hwp;
@@ -1058,7 +1051,7 @@ RivaScreenInit(SCREEN_INIT_ARGS_DECL)
 
     /* Darken the screen for aesthetic reasons and set the viewport */
     RivaSaveScreen(pScreen, SCREEN_SAVER_ON);
-    pScrn->AdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    pScrn->AdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
 
 
     /*

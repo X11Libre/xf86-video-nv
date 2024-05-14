@@ -42,9 +42,8 @@ RivaRefreshArea(ScrnInfoPtr pScrn, int num, BoxPtr pbox)
 } 
 
 void
-RivaPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
+RivaPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     RivaPtr pRiva = RivaPTR(pScrn);
     int newX, newY;
 
@@ -56,7 +55,7 @@ RivaPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
 	newY = pScrn->pScreen->width - x - 1;
     }
 
-    (*pRiva->PointerMoved)(arg, newX, newY);
+    (*pRiva->PointerMoved)(pScrn, newX, newY);
 }
 
 void

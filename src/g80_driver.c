@@ -30,9 +30,6 @@
 
 #include <xf86.h>
 #include <xf86_OSproc.h>
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 6
-#include <xf86Resources.h>
-#endif
 #include <mipointer.h>
 #include <micmap.h>
 #include <xf86cmap.h>
@@ -503,7 +500,7 @@ ReleaseDisplay(ScrnInfoPtr pScrn)
 }
 
 static Bool
-G80CloseScreen(CLOSE_SCREEN_ARGS_DECL)
+G80CloseScreen(ScreenPtr pScreen)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     G80Ptr pNv = G80PTR(pScrn);
@@ -540,13 +537,12 @@ G80CloseScreen(CLOSE_SCREEN_ARGS_DECL)
     pScrn->vtSema = FALSE;
     pScreen->CloseScreen = pNv->CloseScreen;
     pScreen->BlockHandler = pNv->BlockHandler;
-    return (*pScreen->CloseScreen)(CLOSE_SCREEN_ARGS);
+    return (*pScreen->CloseScreen)(pScreen);
 }
 
 static void
 G80BlockHandler(BLOCKHANDLER_ARGS_DECL)
 {
-    SCREEN_PTR(arg);
     ScrnInfoPtr pScrnInfo = xf86ScreenToScrn(pScreen);
     G80Ptr pNv = G80PTR(pScrnInfo);
 
@@ -748,7 +744,7 @@ G80InitHW(ScrnInfoPtr pScrn)
 }
 
 static Bool
-G80ScreenInit(SCREEN_INIT_ARGS_DECL)
+G80ScreenInit(ScreenPtr pScreen, int argc, char **argv)
 {
     ScrnInfoPtr pScrn;
     G80Ptr pNv;
@@ -897,28 +893,25 @@ G80ScreenInit(SCREEN_INIT_ARGS_DECL)
 }
 
 static void
-G80FreeScreen(FREE_SCREEN_ARGS_DECL)
+G80FreeScreen(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     G80FreeRec(pScrn);
 }
 
 static Bool
-G80SwitchMode(SWITCH_MODE_ARGS_DECL)
+G80SwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode)
 {
-    SCRN_INFO_PTR(arg);
     return xf86SetSingleMode(pScrn, mode, RR_Rotate_0);
 }
 
 static void
-G80AdjustFrame(ADJUST_FRAME_ARGS_DECL)
+G80AdjustFrame(ScrnInfoPtr arg, int x, int y)
 {
 }
 
 static Bool
-G80EnterVT(VT_FUNC_ARGS_DECL)
+G80EnterVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     G80Ptr pNv = G80PTR(pScrn);
 
     /* Reinit the hardware */
@@ -934,10 +927,8 @@ G80EnterVT(VT_FUNC_ARGS_DECL)
 }
 
 static void
-G80LeaveVT(VT_FUNC_ARGS_DECL)
+G80LeaveVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
-
     ReleaseDisplay(pScrn);
 }
 
@@ -962,7 +953,6 @@ Bool G80GetScrnInfoRec(PciChipsets *chips, int chip)
     pScrn->EnterVT          = G80EnterVT;
     pScrn->LeaveVT          = G80LeaveVT;
     pScrn->FreeScreen       = G80FreeScreen;
-    // pScrn->ValidMode        = G80ValidMode;
 
     return TRUE;
 }
