@@ -434,9 +434,11 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
 
     if(!pNv->NoAccel) {
         switch(pNv->AccelMethod) {
+#ifdef HAVE_XAA_H
         case XAA:
             if(!xf86LoadSubModule(pScrn, "xaa")) pNv->NoAccel = 1;
             break;
+#endif
         case EXA:
             if(!xf86LoadSubModule(pScrn, "exa")) pNv->NoAccel = 1;
             break;
