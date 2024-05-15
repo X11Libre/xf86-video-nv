@@ -158,12 +158,12 @@ Disable or enable acceleration.  Default: acceleration is enabled.
 .TP
 .BI "Option \*qAccelMethod\*q \*q" string \*q
 Choose acceleration architecture, either \*qXAA\*q or \*qEXA\*q.
-XAA is the old but stable architecture.
+XAA is the old but stable architecture, but was removed in Xorg 1.13.
 EXA is newer and supports resizing the desktop larger than it started out with RandR 1.2.
 If you choose to use EXA, you might also consider setting
 .B Option \*qMigrationHeuristic\*q \*qgreedy\*q
 to improve performance.
-Default: XAA.
+Default: XAA if compiled for Xorg 1.12 or older, otherwise EXA.
 .TP
 .BI "Option \*qFPDither\*q \*q" boolean \*q
 Enable or disable flat panel dithering by default.
