@@ -6,9 +6,6 @@
 #include "riva_include.h"
 #include "riva_type.h"
 #include "riva_proto.h"
-#ifdef HAVE_XAA_H
-#include "xaalocal.h"
-#endif
 #include "dgaproc.h"
 
 static Bool Riva_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **, 
@@ -16,12 +13,6 @@ static Bool Riva_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **,
 static Bool Riva_SetMode(ScrnInfoPtr, DGAModePtr);
 static int  Riva_GetViewport(ScrnInfoPtr);
 static void Riva_SetViewport(ScrnInfoPtr, int, int, int);
-#ifdef HAVE_XAA_H
-static void Riva_FillRect(ScrnInfoPtr, int, int, int, int, unsigned long);
-static void Riva_BlitRect(ScrnInfoPtr, int, int, int, int, int, int);
-static void Riva_BlitTransRect(ScrnInfoPtr, int, int, int, int, int, int, 
-					unsigned long);
-#endif
 
 static
 DGAFunctionRec Riva_DGAFuncs = {
@@ -31,16 +22,8 @@ DGAFunctionRec Riva_DGAFuncs = {
    Riva_SetViewport,
    Riva_GetViewport,
    RivaSync,
-#ifdef HAVE_XAA_H
-   Riva_FillRect,
-   Riva_BlitRect,
-   Riva_BlitTransRect
-#else
    NULL, NULL, NULL
-#endif
 };
-
-
 
 static DGAModePtr
 RivaSetupDGAMode(
@@ -87,10 +70,6 @@ SECOND_PASS:
 
 	    if(pixmap)
 		mode->flags |= DGA_PIXMAP_AVAILABLE;
-#ifdef HAVE_XAA_H
-	    if(!pRiva->NoAccel)
-		mode->flags |= DGA_FILL_RECT | DGA_BLIT_RECT;
-#endif
 	    if(pMode->Flags & V_DBLSCAN)
 		mode->flags |= DGA_DOUBLESCAN;
 	    if(pMode->Flags & V_INTERLACE)
@@ -243,58 +222,6 @@ Riva_SetViewport(
 
    pRiva->DGAViewportStatus = 0;  
 }
-
-#ifdef HAVE_XAA_H
-static void 
-Riva_FillRect (
-   ScrnInfoPtr pScrn, 
-   int x, int y, int w, int h, 
-   unsigned long color
-){
-    RivaPtr pRiva = RivaPTR(pScrn);
-
-    if(!pRiva->AccelInfoRec) return;
-
-    (*pRiva->AccelInfoRec->SetupForSolidFill)(pScrn, color, GXcopy, ~0);
-    (*pRiva->AccelInfoRec->SubsequentSolidFillRect)(pScrn, x, y, w, h);
-
-    SET_SYNC_FLAG(pRiva->AccelInfoRec);
-}
-
-static void 
-Riva_BlitRect(
-   ScrnInfoPtr pScrn, 
-   int srcx, int srcy, 
-   int w, int h, 
-   int dstx, int dsty
-){
-    RivaPtr pRiva = RivaPTR(pScrn);
-    int xdir = ((srcx < dstx) && (srcy == dsty)) ? -1 : 1;
-    int ydir = (srcy < dsty) ? -1 : 1;
-
-    if(!pRiva->AccelInfoRec) return;
-
-    (*pRiva->AccelInfoRec->SetupForScreenToScreenCopy)(
-		pScrn, xdir, ydir, GXcopy, ~0, -1);
-
-    (*pRiva->AccelInfoRec->SubsequentScreenToScreenCopy)(
-		pScrn, srcx, srcy, dstx, dsty, w, h);
-
-    SET_SYNC_FLAG(pRiva->AccelInfoRec);
-}
-
-
-static void 
-Riva_BlitTransRect(
-   ScrnInfoPtr pScrn, 
-   int srcx, int srcy, 
-   int w, int h, 
-   int dstx, int dsty,
-   unsigned long color
-){
-   /* not implemented... yet */
-}
-#endif
 
 static Bool 
 Riva_OpenFramebuffer(
