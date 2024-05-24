@@ -6,9 +6,6 @@
 #include "nv_include.h"
 #include "nv_type.h"
 #include "nv_proto.h"
-#ifdef HAVE_XAA_H
-#include "xaalocal.h"
-#endif
 #include "dgaproc.h"
 
 
@@ -17,12 +14,6 @@ static Bool NV_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **,
 static Bool NV_SetMode(ScrnInfoPtr, DGAModePtr);
 static int  NV_GetViewport(ScrnInfoPtr);
 static void NV_SetViewport(ScrnInfoPtr, int, int, int);
-#ifdef HAVE_XAA_H
-static void NV_FillRect(ScrnInfoPtr, int, int, int, int, unsigned long);
-static void NV_BlitRect(ScrnInfoPtr, int, int, int, int, int, int);
-static void NV_BlitTransRect(ScrnInfoPtr, int, int, int, int, int, int, 
-					unsigned long);
-#endif
 
 static
 DGAFunctionRec NV_DGAFuncs = {
@@ -32,16 +23,8 @@ DGAFunctionRec NV_DGAFuncs = {
    NV_SetViewport,
    NV_GetViewport,
    NVSync,
-#ifdef HAVE_XAA_H
-   NV_FillRect,
-   NV_BlitRect,
-   NV_BlitTransRect
-#else
    NULL, NULL, NULL
-#endif
 };
-
-
 
 static DGAModePtr
 NVSetupDGAMode(
@@ -88,10 +71,6 @@ SECOND_PASS:
 
 	    if(pixmap)
 		mode->flags |= DGA_PIXMAP_AVAILABLE;
-#ifdef HAVE_XAA_H
-	    if(!pNv->NoAccel)
-		mode->flags |= DGA_FILL_RECT | DGA_BLIT_RECT;
-#endif
 	    if(pMode->Flags & V_DBLSCAN)
 		mode->flags |= DGA_DOUBLESCAN;
 	    if(pMode->Flags & V_INTERLACE)
@@ -251,58 +230,6 @@ NV_SetViewport(
 
    pNv->DGAViewportStatus = 0;  
 }
-
-#ifdef HAVE_XAA_H
-static void 
-NV_FillRect (
-   ScrnInfoPtr pScrn, 
-   int x, int y, int w, int h, 
-   unsigned long color
-){
-    NVPtr pNv = NVPTR(pScrn);
-
-    if(!pNv->AccelInfoRec) return;
-
-    (*pNv->AccelInfoRec->SetupForSolidFill)(pScrn, color, GXcopy, ~0);
-    (*pNv->AccelInfoRec->SubsequentSolidFillRect)(pScrn, x, y, w, h);
-
-    SET_SYNC_FLAG(pNv->AccelInfoRec);
-}
-
-static void 
-NV_BlitRect(
-   ScrnInfoPtr pScrn, 
-   int srcx, int srcy, 
-   int w, int h, 
-   int dstx, int dsty
-){
-    NVPtr pNv = NVPTR(pScrn);
-    int xdir = ((srcx < dstx) && (srcy == dsty)) ? -1 : 1;
-    int ydir = (srcy < dsty) ? -1 : 1;
-
-    if(!pNv->AccelInfoRec) return;
-
-    (*pNv->AccelInfoRec->SetupForScreenToScreenCopy)(
-		pScrn, xdir, ydir, GXcopy, ~0, -1);
-
-    (*pNv->AccelInfoRec->SubsequentScreenToScreenCopy)(
-		pScrn, srcx, srcy, dstx, dsty, w, h);
-
-    SET_SYNC_FLAG(pNv->AccelInfoRec);
-}
-
-
-static void 
-NV_BlitTransRect(
-   ScrnInfoPtr pScrn, 
-   int srcx, int srcy, 
-   int w, int h, 
-   int dstx, int dsty,
-   unsigned long color
-){
-   /* not implemented */
-}
-#endif
 
 static Bool 
 NV_OpenFramebuffer(
