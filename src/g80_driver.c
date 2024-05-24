@@ -50,7 +50,6 @@
 #include "g80_dma.h"
 #include "g80_output.h"
 #include "g80_exa.h"
-#include "g80_xaa.h"
 
 #define G80_REG_SIZE (1024 * 1024 * 16)
 #define G80_RESERVED_VIDMEM 0xe000
@@ -103,11 +102,7 @@ G80ResizeScreen(ScrnInfoPtr pScrn, int width, int height)
     pScrn->virtualY = height;
 
     /* Can resize if XAA is disabled or EXA is enabled */
-    if(
-#ifdef HAVE_XAA_H
-       !pNv->xaa ||
-#endif
-       pNv->exa) {
+    if(pNv->exa) {
         (*pScrn->pScreen->GetScreenPixmap)(pScrn->pScreen)->devKind = pitch;
         pScrn->displayWidth = pitch / (pScrn->bitsPerPixel / 8);
 
@@ -278,11 +273,6 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
         xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "Acceleration disabled\n");
     }
     s = xf86GetOptValString(pNv->Options, OPTION_ACCEL_METHOD);
-#ifdef HAVE_XAA_H
-    if(!s || !strcasecmp(s, "xaa"))
-        pNv->AccelMethod = XAA;
-    else
-#endif
     if(!strcasecmp(s, "exa"))
         pNv->AccelMethod = EXA;
     else {
@@ -431,11 +421,6 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
 
     if(!pNv->NoAccel) {
         switch(pNv->AccelMethod) {
-#ifdef HAVE_XAA_H
-        case XAA:
-            if(!xf86LoadSubModule(pScrn, "xaa")) pNv->NoAccel = 1;
-            break;
-#endif
         case EXA:
             if(!xf86LoadSubModule(pScrn, "exa")) pNv->NoAccel = 1;
             break;
@@ -508,10 +493,6 @@ G80CloseScreen(ScreenPtr pScreen)
     if(pScrn->vtSema)
         ReleaseDisplay(pScrn);
 
-#ifdef HAVE_XAA_H
-    if(pNv->xaa)
-        XAADestroyInfoRec(pNv->xaa);
-#endif
     if(pNv->exa) {
         if(pNv->exaScreenArea) {
             exaOffscreenFree(pScreen, pNv->exaScreenArea);
@@ -816,13 +797,6 @@ G80ScreenInit(ScreenPtr pScreen, int argc, char **argv)
     if(!pNv->NoAccel) {
         G80InitHW(pScrn);
         switch(pNv->AccelMethod) {
-        case XAA:
-            if(!G80XAAInit(pScreen)) {
-                xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-                           "XAA hardware acceleration initialization failed\n");
-                return FALSE;
-            }
-            break;
         case EXA:
             if(!G80ExaInit(pScreen, pScrn)) {
                 xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
@@ -855,16 +829,6 @@ G80ScreenInit(ScreenPtr pScreen, int argc, char **argv)
 
     xf86DPMSInit(pScreen, xf86DPMSSet, 0);
 
-#ifdef HAVE_XAA_H
-    /* Clear the screen */
-    if(pNv->xaa) {
-        /* Use the acceleration engine */
-        pNv->xaa->SetupForSolidFill(pScrn, 0, GXcopy, ~0);
-        pNv->xaa->SubsequentSolidFillRect(pScrn,
-            0, 0, pScrn->displayWidth, pNv->offscreenHeight);
-        G80DmaKickoff(pNv);
-    } else
-#endif
     {
         /* Use a slow software clear path */
         memset(pNv->mem, 0, pitch * pNv->offscreenHeight);
@@ -912,14 +876,6 @@ G80AdjustFrame(ScrnInfoPtr arg, int x, int y)
 static Bool
 G80EnterVT(ScrnInfoPtr pScrn)
 {
-    G80Ptr pNv = G80PTR(pScrn);
-
-    /* Reinit the hardware */
-#ifdef HAVE_XAA_H
-    if(pNv->xaa)
-        G80InitHW(pScrn);
-#endif
-
     if(!AcquireDisplay(pScrn))
         return FALSE;
 
