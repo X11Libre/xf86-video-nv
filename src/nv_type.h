@@ -125,9 +125,6 @@ typedef struct {
     volatile U008 *PDIO0;
     volatile U008 *PDIO;
     volatile U032 *PRAMDAC;
-#ifdef HAVE_XAA_H
-    XAAInfoRecPtr       AccelInfoRec;
-#endif
     xf86CursorInfoPtr   CursorInfoRec;
     DGAModePtr          DGAModes;
     int                 numDGAModes;

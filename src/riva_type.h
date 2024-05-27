@@ -4,9 +4,6 @@
 #include "riva_hw.h"
 #include "colormapst.h"
 #include "vgaHW.h"
-#ifdef HAVE_XAA_H
-#include "xaa.h"
-#endif
 #include "xf86Cursor.h"
 #include "xf86int10.h"
 
@@ -79,9 +76,6 @@ typedef struct {
     int                 ShadowPitch;
     int                 MinClock;
     int                 MaxClock;
-#ifdef HAVE_XAA_H
-    XAAInfoRecPtr       AccelInfoRec;
-#endif
     xf86CursorInfoPtr   CursorInfoRec;
     DGAModePtr          DGAModes;
     int                 numDGAModes;

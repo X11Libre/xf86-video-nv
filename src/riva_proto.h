@@ -27,7 +27,6 @@ void    Riva3Setup(ScrnInfoPtr pScrn);
 Bool    RivaCursorInit(ScreenPtr pScreen);
 
 /* in riva_xaa.c */
-Bool    RivaAccelInit(ScreenPtr pScreen);
 void    RivaSync(ScrnInfoPtr pScrn);
 void    RivaResetGraphics(ScrnInfoPtr pScrn);
 
