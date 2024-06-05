@@ -780,7 +780,7 @@ G80DispCreateCrtcs(ScrnInfoPtr pScrn)
         crtc = xf86CrtcCreate(pScrn, &g80_crtc_funcs);
         if(!crtc) return;
 
-        g80_crtc = XNFcallocarray(sizeof(*g80_crtc), 1);
+        g80_crtc = XNFcalloc(sizeof(*g80_crtc));
         g80_crtc->head = head;
         g80_crtc->dither = pNv->Dither;
         crtc->driver_private = g80_crtc;

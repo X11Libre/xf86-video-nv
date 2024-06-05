@@ -693,7 +693,7 @@ NVGetRec(ScrnInfoPtr pScrn)
     if (pScrn->driverPrivate != NULL)
         return TRUE;
 
-    pScrn->driverPrivate = XNFcallocarray(sizeof(NVRec), 1);
+    pScrn->driverPrivate = XNFcalloc(sizeof(NVRec));
     /* Initialise it */
 
     return TRUE;
@@ -1927,7 +1927,7 @@ NVPreInit(ScrnInfoPtr pScrn, int flags)
      * and what sort of modes they can be used for.
      */
 
-    clockRanges = XNFcallocarray(sizeof(ClockRange), 1);
+    clockRanges = XNFcalloc(sizeof(ClockRange));
     clockRanges->next = NULL;
     clockRanges->minClock = pNv->MinVClockFreqKHz;
     clockRanges->maxClock = pNv->MaxVClockFreqKHz;
