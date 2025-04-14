@@ -2,8 +2,8 @@
 #define __RIVA_PROTO_H__
 
 /* in riva_driver.c */
-Bool    RivaSwitchMode(SWITCH_MODE_ARGS_DECL);
-void    RivaAdjustFrame(ADJUST_FRAME_ARGS_DECL);
+Bool    RivaSwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode);
+void    RivaAdjustFrame(ScrnInfoPtr pScrn, int x, int y);
 Bool    RivaI2CInit(ScrnInfoPtr pScrn);
 const   OptionInfoRec * RivaAvailableOptions(int chipid, int busid);
 Bool    RivaGetScrnInfoRec(PciChipsets *chips, int chip);
