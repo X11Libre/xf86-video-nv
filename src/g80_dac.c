@@ -194,7 +194,10 @@ static const xf86OutputFuncsRec G80DacOutputFuncs = {
 xf86OutputPtr
 G80CreateDac(ScrnInfoPtr pScrn, ORNum or)
 {
-    G80OutputPrivPtr pPriv = XNFcalloc(sizeof(*pPriv));
+    G80OutputPrivPtr pPriv = calloc(1, sizeof(*pPriv));
+    if (!pPriv)
+        return NULL;
+
     xf86OutputPtr output;
     char orName[5];
 
