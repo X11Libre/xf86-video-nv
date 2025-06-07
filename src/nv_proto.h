@@ -30,7 +30,6 @@ void   NVCommonSetup(ScrnInfoPtr pScrn);
 Bool   NVCursorInit(ScreenPtr pScreen);
 
 /* in nv_xaa.c */
-Bool   NVAccelInit(ScreenPtr pScreen);
 void   NVSync(ScrnInfoPtr pScrn);
 void   NVResetGraphics(ScrnInfoPtr pScrn);
 void   NVDmaKickoff(NVPtr pNv);

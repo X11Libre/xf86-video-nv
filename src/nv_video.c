@@ -629,9 +629,6 @@ NVPutBlitImage (
     }
 
     NVDmaKickoff(pNv);
-#ifdef HAVE_XAA_H
-    SET_SYNC_FLAG(pNv->AccelInfoRec);
-#endif
     pPriv->videoStatus = FREE_TIMER;
     pPriv->videoTime = currentTime.milliseconds + FREE_DELAY;
     pNv->VideoTimerCallback = NVVideoTimerCallback;

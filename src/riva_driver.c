@@ -257,10 +257,6 @@ RivaCloseScreen(CLOSE_SCREEN_ARGS_DECL)
 
     RivaUnmapMem(pScrn);
     vgaHWUnmapMem(pScrn);
-#ifdef HAVE_XAA_H
-    if (pRiva->AccelInfoRec)
-        XAADestroyInfoRec(pRiva->AccelInfoRec);
-#endif
     if (pRiva->CursorInfoRec)
         xf86DestroyCursorInfoRec(pRiva->CursorInfoRec);
     if (pRiva->ShadowPtr)
@@ -1164,10 +1160,7 @@ RivaScreenInit(SCREEN_INIT_ARGS_DECL)
     AvailFBArea.y2 = (min(pRiva->FbUsableSize, 32*1024*1024)) / 
                      (pScrn->displayWidth * pScrn->bitsPerPixel / 8);
     xf86InitFBManager(pScreen, &AvailFBArea);
-    
-    if (!pRiva->NoAccel)
-	RivaAccelInit(pScreen);
-    
+
     xf86SetBackingStore(pScreen);
     xf86SetSilkenMouse(pScreen);
 
