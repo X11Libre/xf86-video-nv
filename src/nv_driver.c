@@ -37,8 +37,10 @@
  * nv will refuse to work whenever there's a driver other than vga attached to
  * the device we're trying to probe, yet nv works fine on top of gffb or
  * genfb on NetBSD
+ *
+ * FreeBSD always has vgapci driver attached.
  */
-#ifndef __NetBSD__
+#if     !defined (__NetBSD__) && !defined (__FreeBSD__)
 #define NV_TEST_FOR_KERNEL_DRIVER 1
 #endif
 
