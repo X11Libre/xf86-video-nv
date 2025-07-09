@@ -657,8 +657,19 @@ typedef enum {
     OPTION_FP_SCALE,
     OPTION_FP_TWEAK,
     OPTION_DUALHEAD,
+    OPTION_PERMISSIVE, /* turn some errors into warnings */
 } NVOpts;
 
+/* This can't be stored in the NVRec,
+   because it is needed in places where that is inaccessible */
+typedef enum {
+    PERMISSIVE_NONE = 0,
+    PERMISSIVE_KERNEL_BOUND = 1 << 0,
+    PERMISSIVE_UNSUPPORTED = 1 << 1,
+} permissive_t;
+
+/* exported because it may be used in other places too */
+permissive_t Permissive = PERMISSIVE_NONE;
 
 static const OptionInfoRec NVOptions[] = {
     { OPTION_SW_CURSOR,         "SWcursor",     OPTV_BOOLEAN,   {0}, FALSE },
@@ -674,6 +685,7 @@ static const OptionInfoRec NVOptions[] = {
     { OPTION_FP_SCALE,          "FPScale",      OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_FP_TWEAK,          "FPTweak",      OPTV_INTEGER,   {0}, FALSE },
     { OPTION_DUALHEAD,          "DualHead",     OPTV_BOOLEAN,   {0}, FALSE },
+    { OPTION_PERMISSIVE,        "Permissive",   OPTV_BOOLEAN,   {0}, FALSE },
     { -1,                       NULL,           OPTV_NONE,      {0}, FALSE }
 };
 
@@ -923,15 +935,16 @@ NVPciProbe(DriverPtr drv, int entity, struct pci_device *dev, intptr_t data)
                        (dev->device_id & 0xfff0) == 0x02E0) ?
                       NVGetPCIXpressChip(dev) : dev->vendor_id << 16 | dev->device_id;
     const char *name = xf86TokenToString(NVKnownChipsets, id);
+    Bool ret;
 
 #ifdef NV_TEST_FOR_KERNEL_DRIVER
     if (pci_device_has_kernel_driver(dev)) {
-        xf86DrvMsg(0, X_ERROR,
+        xf86DrvMsg(0, X_WARNING,
                    NV_NAME ": The PCI device 0x%x (%s) at %2.2d@%2.2d:%2.2d:%1.1d has a kernel module claiming it.\n",
                    id, name, dev->bus, dev->domain, dev->dev, dev->func);
-        xf86DrvMsg(0, X_ERROR,
-                   NV_NAME ": This driver cannot operate until it has been unloaded.\n");
-        return FALSE;
+        xf86DrvMsg(0, X_WARNING,
+                   NV_NAME ": This driver will not operate until it has been unloaded, unless Option Permissive is enabled.\n");
+        Permissive |= PERMISSIVE_KERNEL_BOUND;
     }
 #endif
 
@@ -941,13 +954,16 @@ NVPciProbe(DriverPtr drv, int entity, struct pci_device *dev, intptr_t data)
         name = pci_device_get_device_name(dev);
         if(name)
             xf86DrvMsg(0, X_WARNING,
-                       NV_NAME ": Ignoring unsupported device 0x%x (%s) at %2.2d@%2.2d:%2.2d:%1.1d\n",
+                       NV_NAME ": Using unsupported device 0x%x (%s) at %2.2d@%2.2d:%2.2d:%1.1d\n",
                        id, name, dev->bus, dev->domain, dev->dev, dev->func);
         else
             xf86DrvMsg(0, X_WARNING,
-                       NV_NAME ": Ignoring unsupported device 0x%x at %2.2d@%2.2d:%2.2d:%1.1d\n",
+                       NV_NAME ": Using unsupported device 0x%x at %2.2d@%2.2d:%2.2d:%1.1d\n",
                        id, dev->bus, dev->domain, dev->dev, dev->func);
-        return FALSE;
+        xf86DrvMsg(0, X_WARNING,
+                   NV_NAME ": This driver will not operate like this, unless Option Permissive is enabled.\n");
+
+        Permissive |= PERMISSIVE_UNSUPPORTED;
     }
 
     if(!name)
@@ -960,11 +976,16 @@ NVPciProbe(DriverPtr drv, int entity, struct pci_device *dev, intptr_t data)
                name, dev->bus, dev->domain, dev->dev, dev->func);
 
     if(NVIsG80(id))
-        return G80GetScrnInfoRec(NULL, entity);
+        ret =  G80GetScrnInfoRec(NULL, entity);
     else if(dev->vendor_id == PCI_VENDOR_NVIDIA_SGS)
-        return RivaGetScrnInfoRec(NULL, entity);
+        ret =  RivaGetScrnInfoRec(NULL, entity);
     else
-        return NVGetScrnInfoRec(NULL, entity);
+        ret =  NVGetScrnInfoRec(NULL, entity);
+
+    if (ret == FALSE) { /* this card is rejected for other reasons */
+        Permissive = PERMISSIVE_NONE;
+    }
+    return ret;
 }
 #else
 static Bool
@@ -1223,7 +1244,14 @@ NVCloseScreen(CLOSE_SCREEN_ARGS_DECL)
         if (pNv->VBEDualhead) {
             NVSaveRestoreVBE(pScrn, MODE_RESTORE);
         } else {
-            NVRestore(pScrn);
+#ifdef PERMISSIVE
+            if (!(Permissive & PERMISSIVE_UNSUPPORTED) && /* don't touch this if the card is unsupported */
+                !(Permissive & PERMISSIVE_KERNEL_BOUND) /* or if a kernel driver is bound */
+                                                       )
+#endif
+            {
+                NVRestore(pScrn);
+            }
             NVLockUnlock(pNv, 1);
         }
     }
@@ -1722,6 +1750,24 @@ NVPreInit(ScrnInfoPtr pScrn, int flags)
                        "FBDev and Dualhead are incompatible.\n");
         else
             pNv->VBEDualhead = TRUE;
+    }
+
+    if (xf86ReturnOptValBool(pNv->Options, OPTION_PERMISSIVE, FALSE)) {
+        pNv->Permissive = TRUE;
+        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+                   "Option Permissive is enabled, "
+                   "some errors were turned into warnings.\n");
+        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+                   "This might cause instability.\n");
+    }
+    else {
+        pNv->Permissive = FALSE;
+        if (Permissive != PERMISSIVE_NONE) { /* turn warnings into errors */
+            xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+                       "Option Permissive is disabled,"
+                       "some warnings were turned into errors.\n");
+            return FALSE;
+        }
     }
 
     if (pNv->VBEDualhead) {
