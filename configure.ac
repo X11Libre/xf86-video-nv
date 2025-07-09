@@ -102,6 +102,19 @@ AC_MSG_CHECKING([whether to include XAA support])
 AM_CONDITIONAL(XAA, test "x$XAA" = xyes)
 AC_MSG_RESULT([$XAA])
 
+AC_ARG_ENABLE(permissive,
+              AS_HELP_STRING([--enable-permissive],
+                             [Allow optionally turning some drivers errors into warnings [default=auto]]),
+              [PERMISSIVE="$enableval"],
+              [PERMISSIVE=auto])
+
+AM_CONDITIONAL(PERMISSIVE, test "x$PERMISSIVE" = xyes)
+
+if test "x$PERMISSIVE" = xyes; then
+        AC_DEFINE([PERMISSIVE], 1, [Build Option Permissive])
+fi
+
+
 # Substitutions
 AC_SUBST([moduledir])
 

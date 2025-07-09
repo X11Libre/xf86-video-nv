@@ -657,9 +657,12 @@ typedef enum {
     OPTION_FP_SCALE,
     OPTION_FP_TWEAK,
     OPTION_DUALHEAD,
+#ifdef PERMISSIVE
     OPTION_PERMISSIVE, /* turn some errors into warnings */
+#endif
 } NVOpts;
 
+#ifdef PERMISSIVE
 /* This can't be stored in the NVRec,
    because it is needed in places where that is inaccessible */
 typedef enum {
@@ -670,6 +673,7 @@ typedef enum {
 
 /* exported because it may be used in other places too */
 permissive_t Permissive = PERMISSIVE_NONE;
+#endif
 
 static const OptionInfoRec NVOptions[] = {
     { OPTION_SW_CURSOR,         "SWcursor",     OPTV_BOOLEAN,   {0}, FALSE },
@@ -685,7 +689,9 @@ static const OptionInfoRec NVOptions[] = {
     { OPTION_FP_SCALE,          "FPScale",      OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_FP_TWEAK,          "FPTweak",      OPTV_INTEGER,   {0}, FALSE },
     { OPTION_DUALHEAD,          "DualHead",     OPTV_BOOLEAN,   {0}, FALSE },
+#ifdef PERMISSIVE
     { OPTION_PERMISSIVE,        "Permissive",   OPTV_BOOLEAN,   {0}, FALSE },
+#endif
     { -1,                       NULL,           OPTV_NONE,      {0}, FALSE }
 };
 
@@ -938,32 +944,53 @@ NVPciProbe(DriverPtr drv, int entity, struct pci_device *dev, intptr_t data)
     Bool ret;
 
 #ifdef NV_TEST_FOR_KERNEL_DRIVER
+#ifdef PERMISSIVE
+#define MSG_LEVEL X_WARNING
+#else
+#define MSG_LEVEL X_ERROR
+#endif
     if (pci_device_has_kernel_driver(dev)) {
-        xf86DrvMsg(0, X_WARNING,
+        xf86DrvMsg(0, MSG_LEVEL,
                    NV_NAME ": The PCI device 0x%x (%s) at %2.2d@%2.2d:%2.2d:%1.1d has a kernel module claiming it.\n",
                    id, name, dev->bus, dev->domain, dev->dev, dev->func);
-        xf86DrvMsg(0, X_WARNING,
+        xf86DrvMsg(0, MSG_LEVEL,
                    NV_NAME ": This driver will not operate until it has been unloaded, unless Option Permissive is enabled.\n");
+#ifdef PERMISSIVE
         Permissive |= PERMISSIVE_KERNEL_BOUND;
+#else
+        return FALSE;
+#endif
     }
+#undef MSG_LEVEL
 #endif
 
     if(dev->vendor_id == PCI_VENDOR_NVIDIA && !name &&
        !NVIsSupported(id) && !NVIsG80(id)) {
+#ifdef PERMISSIVE
+#define WARNING_VERB "Using"
+#else
+#define WARNING_VERB "Ignoring"
+#endif
         /* See if pci.ids knows what the heck this thing is */
         name = pci_device_get_device_name(dev);
         if(name)
             xf86DrvMsg(0, X_WARNING,
-                       NV_NAME ": Using unsupported device 0x%x (%s) at %2.2d@%2.2d:%2.2d:%1.1d\n",
+                       NV_NAME ": " WARNING_VERB " unsupported device 0x%x (%s) at %2.2d@%2.2d:%2.2d:%1.1d\n",
                        id, name, dev->bus, dev->domain, dev->dev, dev->func);
         else
             xf86DrvMsg(0, X_WARNING,
-                       NV_NAME ": Using unsupported device 0x%x at %2.2d@%2.2d:%2.2d:%1.1d\n",
+                       NV_NAME ": " WARNING_VERB " unsupported device 0x%x at %2.2d@%2.2d:%2.2d:%1.1d\n",
                        id, dev->bus, dev->domain, dev->dev, dev->func);
         xf86DrvMsg(0, X_WARNING,
-                   NV_NAME ": This driver will not operate like this, unless Option Permissive is enabled.\n");
+                   NV_NAME ": This driver will not use this card, unless Option Permissive is enabled.\n");
 
+#ifdef PERMISSIVE /* changes legacy behavior wrt multi-card setups
+                     if one is supported and another one is unsupported */
         Permissive |= PERMISSIVE_UNSUPPORTED;
+#else /* keeps legacy behavior */
+        return FALSE;
+#endif
+#undef WARNING_VERB
     }
 
     if(!name)
@@ -982,9 +1009,11 @@ NVPciProbe(DriverPtr drv, int entity, struct pci_device *dev, intptr_t data)
     else
         ret =  NVGetScrnInfoRec(NULL, entity);
 
+#ifdef PERMISSIVE
     if (ret == FALSE) { /* this card is rejected for other reasons */
         Permissive = PERMISSIVE_NONE;
     }
+#endif
     return ret;
 }
 #else
@@ -1751,7 +1780,7 @@ NVPreInit(ScrnInfoPtr pScrn, int flags)
         else
             pNv->VBEDualhead = TRUE;
     }
-
+#ifdef PERMISSIVE
     if (xf86ReturnOptValBool(pNv->Options, OPTION_PERMISSIVE, FALSE)) {
         pNv->Permissive = TRUE;
         xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
@@ -1769,7 +1798,7 @@ NVPreInit(ScrnInfoPtr pScrn, int flags)
             return FALSE;
         }
     }
-
+#endif
     if (pNv->VBEDualhead) {
         if (!xf86LoadSubModule(pScrn, "vbe")) {
             xf86DrvMsg(pScrn->scrnIndex, X_ERROR,

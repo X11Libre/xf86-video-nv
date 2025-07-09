@@ -99,7 +99,9 @@ typedef struct {
     Bool                HWCursor;
     Bool                FpScale;
     Bool                ShadowFB;
+#ifdef PERMISSIVE
     Bool                Permissive;
+#endif
     unsigned char *     ShadowPtr;
     int                 ShadowPitch;
     CARD32              MinVClockFreqKHz;
