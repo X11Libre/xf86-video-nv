@@ -284,9 +284,10 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
 #ifdef HAVE_XAA_H
     if(!s || !strcasecmp(s, "xaa"))
         pNv->AccelMethod = XAA;
-    else
+    else if(!strcasecmp(s, "exa"))
+#else
+    if(!s || !strcasecmp(s, "exa"))
 #endif
-    if(!strcasecmp(s, "exa"))
         pNv->AccelMethod = EXA;
     else {
         xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "Unrecognized AccelMethod "
