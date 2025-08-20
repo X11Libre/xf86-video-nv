@@ -71,8 +71,8 @@ core
 *.tar.bz2
 *.tar.gz
 #
-#		Add & Override patterns for xf86-video-nv 
+#		Add & Override patterns for xf86-video-nv
 #
 #		Edit the following section as needed
 # For example, !report.pc overrides *.pc. See 'man gitignore'
-# 
+#
