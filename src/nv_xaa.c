@@ -85,7 +85,7 @@ NVDmaKickoff(NVPtr pNv)
    to solve this problem */
 #define SKIPS  8
 
-void 
+void
 NVDmaWait (
    NVPtr pNv,
    int size
@@ -111,7 +111,7 @@ NVDmaWait (
                pNv->dmaCurrent = pNv->dmaPut = SKIPS;
                pNv->dmaFree = dmaGet - (SKIPS + 1);
            }
-       } else 
+       } else
            pNv->dmaFree = dmaGet - pNv->dmaCurrent - 1;
     }
 }
@@ -129,13 +129,13 @@ NVWaitVSync(NVPtr pNv)
     NVDmaNext (pNv, 0);
 }
 
-/* 
+/*
   currentRop =  0-15  solid fill
                16-31  8x8 pattern fill
-               32-47  solid fill with planemask 
+               32-47  solid fill with planemask
 */
 
-static void 
+static void
 NVSetPattern(
    ScrnInfoPtr pScrn,
    CARD32 clr0,
@@ -153,7 +153,7 @@ NVSetPattern(
     NVDmaNext (pNv, pat1);
 }
 
-static void 
+static void
 NVSetRopSolid(ScrnInfoPtr pScrn, CARD32 rop, CARD32 planemask)
 {
     NVPtr pNv = NVPTR(pScrn);
@@ -165,7 +165,7 @@ NVSetRopSolid(ScrnInfoPtr pScrn, CARD32 rop, CARD32 planemask)
            NVDmaNext (pNv, NVCopyROP_PM[rop]);
            pNv->currentRop = rop + 32;
         }
-    } else 
+    } else
     if (pNv->currentRop != rop) {
         if(pNv->currentRop >= 16)
              NVSetPattern(pScrn, ~0, ~0, ~0, ~0);
@@ -183,7 +183,7 @@ void NVResetGraphics(ScrnInfoPtr pScrn)
 
     if(pNv->NoAccel) return;
 
-    pitch = pNv->CurrentLayout.displayWidth * 
+    pitch = pNv->CurrentLayout.displayWidth *
             (pNv->CurrentLayout.bitsPerPixel >> 3);
 
     pNv->dmaBase = (CARD32*)(&pNv->FbStart[pNv->FbUsableSize]);

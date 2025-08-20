@@ -9,7 +9,7 @@
 #include "dgaproc.h"
 
 
-static Bool NV_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **, 
+static Bool NV_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **,
 					int *, int *, int *);
 static Bool NV_SetMode(ScrnInfoPtr, DGAModePtr);
 static int  NV_GetViewport(ScrnInfoPtr);
@@ -58,7 +58,7 @@ SECOND_PASS:
 		(size <= pNv->ScratchBufferStart)) {
 
 	    if(secondPitch)
-		pitch = secondPitch; 
+		pitch = secondPitch;
 
 	    if(!(newmodes = realloc(modes, (*num + 1) * sizeof(DGAModeRec))))
 		break;
@@ -91,8 +91,8 @@ SECOND_PASS:
 	    mode->address = pNv->FbStart;
 	    mode->bytesPerScanline = pitch * Bpp;
 	    mode->imageWidth = pitch;
-	    mode->imageHeight =  pNv->ScratchBufferStart / 
-                                 mode->bytesPerScanline; 
+	    mode->imageHeight =  pNv->ScratchBufferStart /
+                                 mode->bytesPerScanline;
 	    mode->pixmapWidth = mode->imageWidth;
 	    mode->pixmapHeight = mode->imageHeight;
 	    mode->maxViewportX = mode->imageWidth - mode->viewportWidth;
@@ -116,32 +116,32 @@ SECOND_PASS:
 
 Bool
 NVDGAInit(ScreenPtr pScreen)
-{   
+{
    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
    NVPtr pNv = NVPTR(pScrn);
    DGAModePtr modes = NULL;
    int num = 0;
 
    /* 8 */
-   modes = NVSetupDGAMode (pScrn, modes, &num, 8, 8, 
+   modes = NVSetupDGAMode (pScrn, modes, &num, 8, 8,
 		(pScrn->bitsPerPixel == 8),
 		(pScrn->bitsPerPixel != 8) ? 0 : pScrn->displayWidth,
 		0, 0, 0, PseudoColor);
 
    /* 15 */
-   modes = NVSetupDGAMode (pScrn, modes, &num, 16, 15, 
+   modes = NVSetupDGAMode (pScrn, modes, &num, 16, 15,
 		(pScrn->bitsPerPixel == 16),
 		(pScrn->depth != 15) ? 0 : pScrn->displayWidth,
 		0x7c00, 0x03e0, 0x001f, TrueColor);
 
    /* 16 */
-   modes = NVSetupDGAMode (pScrn, modes, &num, 16, 16, 
+   modes = NVSetupDGAMode (pScrn, modes, &num, 16, 16,
 		(pScrn->bitsPerPixel == 16),
 		(pScrn->depth != 16) ? 0 : pScrn->displayWidth,
 		0xf800, 0x07e0, 0x001f, TrueColor);
 
    /* 32 */
-   modes = NVSetupDGAMode (pScrn, modes, &num, 32, 24, 
+   modes = NVSetupDGAMode (pScrn, modes, &num, 32, 24,
 		(pScrn->bitsPerPixel == 32),
 		(pScrn->bitsPerPixel != 32) ? 0 : pScrn->displayWidth,
 		0xff0000, 0x00ff00, 0x0000ff, TrueColor);
@@ -149,18 +149,18 @@ NVDGAInit(ScreenPtr pScreen)
    pNv->numDGAModes = num;
    pNv->DGAModes = modes;
 
-   return DGAInit(pScreen, &NV_DGAFuncs, modes, num);  
+   return DGAInit(pScreen, &NV_DGAFuncs, modes, num);
 }
 
 
-static int 
+static int
 BitsSet(unsigned long data)
 {
    unsigned long mask;
    int set = 0;
 
    for(mask = 1; mask; mask <<= 1)
-        if(mask & data) set++;   
+        if(mask & data) set++;
 
    return set;
 }
@@ -178,7 +178,7 @@ NV_SetMode(
    if(!pMode) { /* restore the original mode */
       if(pNv->DGAactive)
         memcpy(&pNv->CurrentLayout, &SavedLayouts[index], sizeof(NVFBLayout));
-                
+
       pScrn->currentMode = pNv->CurrentLayout.mode;
       NVSwitchMode(pScrn, pScrn->currentMode);
       NVAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
@@ -192,7 +192,7 @@ NV_SetMode(
       /* update CurrentLayout */
       pNv->CurrentLayout.bitsPerPixel = pMode->bitsPerPixel;
       pNv->CurrentLayout.depth = pMode->depth;
-      pNv->CurrentLayout.displayWidth = pMode->bytesPerScanline / 
+      pNv->CurrentLayout.displayWidth = pMode->bytesPerScanline /
                               (pMode->bitsPerPixel >> 3);
       pNv->CurrentLayout.weight.red = BitsSet(pMode->red_mask);
       pNv->CurrentLayout.weight.green = BitsSet(pMode->green_mask);
@@ -200,13 +200,13 @@ NV_SetMode(
       /* NVModeInit() will set the mode field */
       NVSwitchMode(pScrn, pMode->mode);
    }
-   
+
    return TRUE;
 }
 
 
 
-static int  
+static int
 NV_GetViewport(
   ScrnInfoPtr pScrn
 ){
@@ -215,10 +215,10 @@ NV_GetViewport(
     return pNv->DGAViewportStatus;
 }
 
-static void 
+static void
 NV_SetViewport(
-   ScrnInfoPtr pScrn, 
-   int x, int y, 
+   ScrnInfoPtr pScrn,
+   int x, int y,
    int flags
 ){
    NVPtr pNv = NVPTR(pScrn);
@@ -228,12 +228,12 @@ NV_SetViewport(
    while(VGA_RD08(pNv->PCIO, 0x3da) & 0x08);
    while(!(VGA_RD08(pNv->PCIO, 0x3da) & 0x08));
 
-   pNv->DGAViewportStatus = 0;  
+   pNv->DGAViewportStatus = 0;
 }
 
-static Bool 
+static Bool
 NV_OpenFramebuffer(
-   ScrnInfoPtr pScrn, 
+   ScrnInfoPtr pScrn,
    char **name,
    unsigned char **mem,
    int *size,

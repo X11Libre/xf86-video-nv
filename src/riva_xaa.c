@@ -70,7 +70,7 @@ RivaSetPattern(RivaPtr pRiva, int clr0, int clr1, int pat0, int pat1)
  */
 static void
 RivaSetRopSolid(RivaPtr pRiva, int rop)
-{    
+{
     if (pRiva->currentRop != rop) {
         if (pRiva->currentRop >= 16)
             RivaSetPattern(pRiva, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
@@ -87,7 +87,7 @@ RivaResetGraphics(ScrnInfoPtr pScrn)
     if(pRiva->NoAccel) return;
 
     RIVA_FIFO_FREE(pRiva->riva, Patt, 1);
-    pRiva->riva.Patt->Shape = 0; 
+    pRiva->riva.Patt->Shape = 0;
     RivaDisableClipping(pScrn);
     pRiva->currentRop = 16;  /* to force RivaSetRopSolid to reset the pattern */
     RivaSetRopSolid(pRiva, GXcopy);
