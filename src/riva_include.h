@@ -51,7 +51,7 @@
 
 #include "xf86Cursor.h"
 
-#include "region.h"
+#include "regionstr.h"
 
 #include "compat-api.h"
 #include "riva_local.h"
