@@ -53,7 +53,7 @@
 
 #include "xf86Cursor.h"
 
-#include "region.h"
+#include "regionstr.h"
 
 #ifdef RANDR
 #include <X11/extensions/randr.h>
