@@ -1,5 +1,5 @@
-xf86-video-nv - NVIDIA video driver for the Xorg X server
----------------------------------------------------------
+xf86-video-nv - NVIDIA video driver for the XLibre X server
+-----------------------------------------------------------
 
 All questions regarding this software should be directed at the
 Xorg mailing list:
