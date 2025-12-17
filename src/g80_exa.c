@@ -22,9 +22,7 @@
  */
 
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "g80_type.h"
 #include "g80_dma.h"

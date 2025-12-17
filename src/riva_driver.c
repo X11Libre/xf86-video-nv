@@ -22,10 +22,7 @@
 
 /* Hacked together from mga driver and 3.3.4 NVIDIA driver by Jarno Paananen
    <jpaana@s2.org> */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "nv_const.h"
 #include "riva_include.h"

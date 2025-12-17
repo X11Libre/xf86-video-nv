@@ -1,6 +1,4 @@
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "riva_local.h"
 #include "riva_include.h"

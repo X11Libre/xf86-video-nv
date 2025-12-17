@@ -2,10 +2,7 @@
    Copyright (c) 1999,  The XFree86 Project Inc.
    Written by Mark Vojkovich <markv@valinux.com>
 */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "nv_local.h"
 #include "nv_include.h"
