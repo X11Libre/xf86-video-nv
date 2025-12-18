@@ -618,8 +618,6 @@ static SymTabRec NVKnownChipsets[] =
   {-1, NULL}
 };
 
-#ifdef XFree86LOADER
-
 static MODULESETUPPROTO(nvSetup);
 
 static XF86ModuleVersionInfo nvVersRec =
@@ -637,8 +635,6 @@ static XF86ModuleVersionInfo nvVersRec =
 };
 
 _X_EXPORT XF86ModuleData nvModuleData = { &nvVersRec, nvSetup, NULL };
-#endif
-
 
 typedef enum {
     OPTION_SW_CURSOR,
@@ -710,9 +706,6 @@ NVFreeRec(ScrnInfoPtr pScrn)
     pScrn->driverPrivate = NULL;
 }
 
-
-#ifdef XFree86LOADER
-
 static pointer
 nvSetup(pointer module, pointer opts, int *errmaj, int *errmin)
 {
@@ -740,9 +733,6 @@ nvSetup(pointer module, pointer opts, int *errmaj, int *errmin)
         return NULL;
     }
 }
-
-
-#endif /* XFree86LOADER */
 
 static const OptionInfoRec *
 NVAvailableOptions(int chipid, int busid)
