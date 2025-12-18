@@ -22,13 +22,7 @@
  */
 #include "config.h"
 
-#ifdef HAVE_XEXTPROTO_71
 #include <X11/extensions/dpmsconst.h>
-#else
-#define DPMS_SERVER
-#include <X11/extensions/dpms.h>
-#endif
-
 #include <X11/Xatom.h>
 
 #include "g80_type.h"

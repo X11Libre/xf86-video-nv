@@ -30,12 +30,7 @@
 #include <micmap.h>
 #include <xf86cmap.h>
 #include <fb.h>
-#ifdef HAVE_XEXTPROTO_71
 #include <X11/extensions/dpmsconst.h>
-#else
-#define DPMS_SERVER
-#include <X11/extensions/dpms.h>
-#endif
 
 #include <xf86RandR12.h>
 
