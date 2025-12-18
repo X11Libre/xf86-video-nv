@@ -83,11 +83,6 @@ CFLAGS="$save_CFLAGS"
 # Substitutions
 AC_SUBST([moduledir])
 
-# Checks for library functions
-# We don't use strlcat, strlcpy, or timingsafe_memcmp, but check to quiet
-# -Wredundant-decls warning from xorg/os.h which will otherwise redefine them.
-AC_CHECK_FUNCS([strlcat strlcpy timingsafe_memcmp])
-
 DRIVER_NAME=nv
 AC_SUBST([DRIVER_NAME])
 
