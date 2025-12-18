@@ -83,9 +83,6 @@ CFLAGS="$save_CFLAGS"
 # Substitutions
 AC_SUBST([moduledir])
 
-DRIVER_NAME=nv
-AC_SUBST([DRIVER_NAME])
-
 AC_CONFIG_FILES([
                 Makefile
                 src/Makefile
