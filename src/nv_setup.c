@@ -312,7 +312,6 @@ static void nv10GetConfig (NVPtr pNv)
     }
 #endif
 
-#ifdef XSERVER_LIBPCIACCESS
     {
     /* [AGP]: I don't know if this is correct */
     struct pci_device *dev = pci_device_find_by_slot(0, 0, 0, 1);
@@ -329,17 +328,6 @@ static void nv10GetConfig (NVPtr pNv)
         pNv->RamAmountKBytes = (pNv->PFB[0x020C/4] & 0xFFF00000) >> 10;
     }
     }
-#else
-    if(implementation == 0x01a0) {
-        int amt = pciReadLong(pciTag(0, 0, 1), 0x7C);
-        pNv->RamAmountKBytes = (((amt >> 6) & 31) + 1) * 1024;
-    } else if(implementation == 0x01f0) {
-        int amt = pciReadLong(pciTag(0, 0, 1), 0x84);
-        pNv->RamAmountKBytes = (((amt >> 4) & 127) + 1) * 1024;
-    } else {
-        pNv->RamAmountKBytes = (pNv->PFB[0x020C/4] & 0xFFF00000) >> 10;
-    }
-#endif
 
     if(pNv->RamAmountKBytes > 256*1024)
         pNv->RamAmountKBytes = 256*1024;
@@ -371,9 +359,7 @@ NVCommonSetup(ScrnInfoPtr pScrn)
     int FlatPanel = -1;   /* really means the CRTC is slaved */
     Bool Television = FALSE;
     void *tmp;
-#ifdef XSERVER_LIBPCIACCESS
     int err;
-#endif
 
     /*
      * Override VGA I/O routines.
@@ -403,17 +389,12 @@ NVCommonSetup(ScrnInfoPtr pScrn)
     pVga->MMIOBase   = (CARD8 *)pNv;
     pVga->MMIOOffset = 0;
 
-#ifdef XSERVER_LIBPCIACCESS
     err = pci_device_map_range(pNv->PciInfo, pNv->IOAddress, 0x01000000,
 			       PCI_DEV_MAP_FLAG_WRITABLE, &tmp);
     if (err != 0) {
 	xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 		   "pci_device_map_range failed: %s\n", strerror(err));
     }
-#else
-    tmp = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO | VIDMEM_READSIDEEFFECT,
-                        pNv->PciTag, pNv->IOAddress, 0x01000000);
-#endif
     pNv->REGS = tmp;
 
     pNv->PRAMIN   = pNv->REGS + (0x00710000/4);

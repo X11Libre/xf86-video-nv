@@ -230,19 +230,12 @@ Riva3Setup(ScrnInfoPtr pScrn)
     pRiva->riva.EnableIRQ = 0;
     pRiva->riva.IO      = VGA_IOBASE_COLOR;
 
-#ifdef XSERVER_LIBPCIACCESS
 #define MAP(ptr, offset, size) { \
     void *tmp; \
     pci_device_map_range(pRiva->PciInfo, (offset), (size), \
                          PCI_DEV_MAP_FLAG_WRITABLE, &tmp); \
     pRiva->riva.ptr = tmp; \
  }
-#else
-#define MAP(ptr, offset, size) \
-    pRiva->riva.ptr = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO | \
-                                    VIDMEM_READSIDEEFFECT, pRiva->PciTag, \
-                                    (offset), (size));
-#endif
 
     MAP(PRAMDAC, regBase + 0x00680000, 0x00003000);
     MAP(PFB,     regBase + 0x00100000, 0x00001000);

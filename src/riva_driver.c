@@ -371,11 +371,6 @@ RivaPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* Find the PCI info for this screen */
     pRiva->PciInfo = xf86GetPciInfoForEntity(pRiva->pEnt->index);
-#ifndef XSERVER_LIBPCIACCESS
-    pRiva->PciTag = pciTag(pRiva->PciInfo->bus, pRiva->PciInfo->device,
-			  pRiva->PciInfo->func);
-#endif
-
     pRiva->Primary = xf86IsPrimaryPci(pRiva->PciInfo);
 
     /* Initialize the card through int10 interface if needed */
@@ -385,11 +380,6 @@ RivaPreInit(ScrnInfoPtr pScrn, int flags)
         pRiva->pInt = xf86InitInt10(pRiva->pEnt->index);
 #endif
     }
-
-#ifndef XSERVER_LIBPCIACCESS
-    xf86SetOperatingState(resVgaIo, pRiva->pEnt->index, ResUnusedOpr);
-    xf86SetOperatingState(resVgaMem, pRiva->pEnt->index, ResDisableOpr);
-#endif
 
     /* Set pScrn->monitor */
     pScrn->monitor = pScrn->confScreen->monitor;
@@ -626,15 +616,6 @@ RivaPreInit(ScrnInfoPtr pScrn, int flags)
     xf86DrvMsg(pScrn->scrnIndex, from, "MMIO registers at 0x%lX\n",
 	       (unsigned long)pRiva->IOAddress);
 
-#ifndef XSERVER_LIBPCIACCESS
-    if (xf86RegisterResources(pRiva->pEnt->index, NULL, ResExclusive)) {
-	xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-		"xf86RegisterResources() found resource conflicts\n");
-	xf86FreeInt10(pRiva->pInt);
-	RivaFreeRec(pScrn);
-	return FALSE;
-    }
-#endif
     Riva3Setup(pScrn);
 
     /*
@@ -813,7 +794,6 @@ RivaMapMem(ScrnInfoPtr pScrn)
     /*
      * Map IO registers to virtual address space
      */
-#ifdef XSERVER_LIBPCIACCESS
     void *tmp;
 
     pci_device_map_range(pRiva->PciInfo, pRiva->IOAddress, 0x1000000,
@@ -824,14 +804,6 @@ RivaMapMem(ScrnInfoPtr pScrn)
                          PCI_DEV_MAP_FLAG_WRITE_COMBINE,
                          &tmp);
     pRiva->FbBase = tmp;
-#else
-    pRiva->IOBase = xf86MapPciMem(pScrn->scrnIndex,
-                                VIDMEM_MMIO | VIDMEM_READSIDEEFFECT,
-                                pRiva->PciTag, pRiva->IOAddress, 0x1000000);
-    pRiva->FbBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_FRAMEBUFFER,
-				 pRiva->PciTag, pRiva->FbAddress,
-				 pRiva->FbMapSize);
-#endif
 
     if (pRiva->IOBase == NULL)
 	return FALSE;
@@ -878,13 +850,8 @@ RivaUnmapMem(ScrnInfoPtr pScrn)
     /*
      * Unmap IO registers to virtual address space
      */
-#ifdef XSERVER_LIBPCIACCESS
     pci_device_unmap_range(pRiva->PciInfo, pRiva->IOBase, 0x1000000);
     pci_device_unmap_range(pRiva->PciInfo, pRiva->FbBase, pRiva->FbMapSize);
-#else
-    xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pRiva->IOBase, 0x1000000);
-    xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pRiva->FbBase, pRiva->FbMapSize);
-#endif
 
     pRiva->IOBase = NULL;
     pRiva->FbBase = NULL;

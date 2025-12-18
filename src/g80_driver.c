@@ -134,14 +134,9 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
 {
     G80Ptr pNv;
     EntityInfoPtr pEnt;
-#ifdef XSERVER_LIBPCIACCESS
     struct pci_device *pPci;
     int err;
     void *p;
-#else
-    pciVideoPtr pPci;
-    PCITAG pcitag;
-#endif
     MessageType from;
     Bool primary;
     const rgb zeros = {0, 0, 0};
@@ -167,22 +162,14 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
     pEnt = xf86GetEntityInfo(pScrn->entityList[0]);
     if(pEnt->location.type != BUS_PCI) goto fail;
     pPci = xf86GetPciInfoForEntity(pEnt->index);
-#ifdef XSERVER_LIBPCIACCESS
     /* Need this to unmap */
     pNv->pPci = pPci;
-#endif
     primary = xf86IsPrimaryPci(pPci);
 
     /* The ROM size sometimes isn't read correctly, so fix it up here. */
-#ifdef XSERVER_LIBPCIACCESS
     if(pPci->rom_size == 0)
         /* The BIOS is 64k */
         pPci->rom_size = 64 * 1024;
-#else
-    if(pPci->biosSize == 0)
-        /* The BIOS is 64k */
-        pPci->biosSize = 16;
-#endif
 
     pNv->int10 = NULL;
     pNv->int10Mode = 0;
@@ -218,11 +205,6 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
     }
 
     /* Disable VGA access */
-#ifndef XSERVER_LIBPCIACCESS
-    xf86SetOperatingState(resVgaIo, pEnt->index, ResUnusedOpr);
-    xf86SetOperatingState(resVgaMem, pEnt->index, ResDisableOpr);
-#endif
-
     pScrn->monitor = pScrn->confScreen->monitor;
 
     if(!xf86SetDepthBpp(pScrn, 0, 0, 0, Support32bppFb)) goto fail;
@@ -285,7 +267,6 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
     pScrn->memPhysBase = MEMBASE(pPci, 1);
     pScrn->fbOffset = 0;
 
-#ifdef XSERVER_LIBPCIACCESS
     err = pci_device_map_range(pPci, pPci->regions[0].base_addr, G80_REG_SIZE,
                                PCI_DEV_MAP_FLAG_WRITABLE, &p);
     if(err) {
@@ -294,22 +275,8 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
         goto fail;
     }
     pNv->reg = p;
-#else
-    pcitag = pciTag(pPci->bus, pPci->device, pPci->func);
-    pNv->reg = xf86MapPciMem(pScrn->scrnIndex,
-                             VIDMEM_MMIO | VIDMEM_READSIDEEFFECT,
-                             pcitag, pPci->memBase[0], G80_REG_SIZE);
-#endif
     xf86DrvMsg(pScrn->scrnIndex, X_INFO, "MMIO registers mapped at %p\n",
                (void*)pNv->reg);
-
-#ifndef XSERVER_LIBPCIACCESS
-    if(xf86RegisterResources(pEnt->index, NULL, ResExclusive)) {
-        xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "xf86RegisterResources() found "
-                   "resource conflicts\n");
-        goto fail;
-    }
-#endif
 
     pNv->architecture = pNv->reg[0] >> 20 & 0x1ff;
     tmp = pNv->reg[0x0010020C/4];
@@ -317,11 +284,7 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
 
     /* Determine the size of BAR1 */
     /* Some configs have BAR1 < total RAM < 256 MB */
-#ifdef XSERVER_LIBPCIACCESS
     BAR1sizeKB = pPci->regions[1].size / 1024;
-#else
-    BAR1sizeKB = 1UL << (pPci->size[1] - 10);
-#endif
     if(BAR1sizeKB > 256 * 1024) {
         xf86DrvMsg(pScrn->scrnIndex, X_WARNING, "BAR1 is > 256 MB, which is "
                    "probably wrong.  Clamping to 256 MB.\n");
@@ -347,7 +310,6 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
     xf86DrvMsg(pScrn->scrnIndex, X_PROBED, "  Mapped memory: %.1f MB\n",
                pScrn->videoRam / 1024.0);
 
-#ifdef XSERVER_LIBPCIACCESS
     err = pci_device_map_range(pPci, pPci->regions[1].base_addr,
                                pScrn->videoRam * 1024,
                                PCI_DEV_MAP_FLAG_WRITABLE |
@@ -359,11 +321,6 @@ G80PreInit(ScrnInfoPtr pScrn, int flags)
         goto fail;
     }
     pNv->mem = p;
-#else
-    pNv->mem = xf86MapPciMem(pScrn->scrnIndex,
-                             VIDMEM_MMIO | VIDMEM_READSIDEEFFECT,
-                             pcitag, pPci->memBase[1], pScrn->videoRam * 1024);
-#endif
     xf86DrvMsg(pScrn->scrnIndex, X_INFO, "Linear framebuffer mapped at %p\n",
                (void*)pNv->mem);
 
@@ -495,13 +452,8 @@ G80CloseScreen(ScreenPtr pScreen)
 
     if(xf86ServerIsExiting()) {
         if(pNv->int10) xf86FreeInt10(pNv->int10);
-#ifdef XSERVER_LIBPCIACCESS
         pci_device_unmap_range(pNv->pPci, pNv->mem, pNv->videoRam * 1024);
         pci_device_unmap_range(pNv->pPci, (void*)pNv->reg, G80_REG_SIZE);
-#else
-        xf86UnMapVidMem(pScrn->scrnIndex, pNv->mem, pNv->videoRam * 1024);
-        xf86UnMapVidMem(pScrn->scrnIndex, (void*)pNv->reg, G80_REG_SIZE);
-#endif
         pNv->reg = NULL;
         pNv->mem = NULL;
     }

@@ -50,13 +50,7 @@ typedef struct {
     RIVA_HW_STATE       SavedReg;
     RIVA_HW_STATE       ModeReg;
     EntityInfoPtr       pEnt;
-#ifdef XSERVER_LIBPCIACCESS
     struct pci_device  *PciInfo;
-#else
-    pciVideoPtr         PciInfo;
-    PCITAG              PciTag;
-    xf86AccessRec       Access;
-#endif
     int                 ChipRev;
     Bool                Primary;
     CARD32              IOAddress;

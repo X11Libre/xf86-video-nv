@@ -71,12 +71,7 @@ CFLAGS="$XORG_CFLAGS"
 AC_CHECK_HEADERS(dev/wscons/wsconsio.h)
 
 # PCI rework
-AC_CHECK_DECL(XSERVER_LIBPCIACCESS,
-              [XSERVER_LIBPCIACCESS=yes],[XSERVER_LIBPCIACCESS=no],
-              [#include "xorg-server.h"])
-if test "x$XSERVER_LIBPCIACCESS" = "xyes"; then
-    PKG_CHECK_MODULES(PCIACCESS, [pciaccess >= 0.10.7])
-fi
+PKG_CHECK_MODULES(PCIACCESS, [pciaccess >= 0.10.7])
 
 CFLAGS="$save_CFLAGS"
 
