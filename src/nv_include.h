@@ -52,7 +52,6 @@
 #include <X11/extensions/randr.h>
 #endif
 
-#include "compat-api.h"
 #include "nv_local.h"
 #include "nv_type.h"
 #include "nv_proto.h"

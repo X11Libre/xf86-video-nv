@@ -1026,7 +1026,7 @@ NVLeaveVTVBE(ScrnInfoPtr pScrn)
 }
 
 static void
-NVBlockHandler (BLOCKHANDLER_ARGS_DECL)
+NVBlockHandler (ScreenPtr pScreen, pointer pTimeout)
 {
     ScrnInfoPtr   pScrnInfo = xf86ScreenToScrn(pScreen);
     NVPtr         pNv = NVPTR(pScrnInfo);
@@ -1035,7 +1035,7 @@ NVBlockHandler (BLOCKHANDLER_ARGS_DECL)
         (*pNv->DMAKickoffCallback)(pScrnInfo);
 
     pScreen->BlockHandler = pNv->BlockHandler;
-    (*pScreen->BlockHandler) (BLOCKHANDLER_ARGS);
+    (*pScreen->BlockHandler) (pScreen, pTimeout);
     pScreen->BlockHandler = NVBlockHandler;
 
     if (pNv->VideoTimerCallback)

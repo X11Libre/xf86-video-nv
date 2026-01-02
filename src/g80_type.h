@@ -6,7 +6,6 @@
 #include <xf86Crtc.h>
 
 #include <xf86fbman.h>
-#include "compat-api.h"
 #define G80_NUM_I2C_PORTS 10
 
 typedef enum Head {
