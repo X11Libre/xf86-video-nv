@@ -46,7 +46,6 @@
 
 #include "regionstr.h"
 
-#include "compat-api.h"
 #include "riva_local.h"
 #include "riva_type.h"
 #include "riva_proto.h"

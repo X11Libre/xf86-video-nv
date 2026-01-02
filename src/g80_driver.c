@@ -465,7 +465,7 @@ G80CloseScreen(ScreenPtr pScreen)
 }
 
 static void
-G80BlockHandler(BLOCKHANDLER_ARGS_DECL)
+G80BlockHandler(ScreenPtr pScreen, pointer pTimeout)
 {
     ScrnInfoPtr pScrnInfo = xf86ScreenToScrn(pScreen);
     G80Ptr pNv = G80PTR(pScrnInfo);
@@ -476,7 +476,7 @@ G80BlockHandler(BLOCKHANDLER_ARGS_DECL)
     G80OutputResetCachedStatus(pScrnInfo);
 
     pScreen->BlockHandler = pNv->BlockHandler;
-    (*pScreen->BlockHandler) (BLOCKHANDLER_ARGS);
+    (*pScreen->BlockHandler) (pScreen, pTimeout);
     pScreen->BlockHandler = G80BlockHandler;
 }
 
