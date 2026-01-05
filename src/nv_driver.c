@@ -65,8 +65,7 @@ static void    NVFreeScreen(ScrnInfoPtr pScrn);
 static ModeStatus NVValidMode(ScrnInfoPtr pScrn, DisplayModePtr mode,
 			      Bool verbose, int flags);
 #ifdef RANDR
-static Bool    NVDriverFunc(ScrnInfoPtr pScrnInfo, xorgDriverFuncOp op,
-			      pointer data);
+static Bool    NVDriverFunc(ScrnInfoPtr pScrnInfo, xorgDriverFuncOp op, void *data);
 #endif
 
 /* Internally used functions */
@@ -694,8 +693,8 @@ NVFreeRec(ScrnInfoPtr pScrn)
     pScrn->driverPrivate = NULL;
 }
 
-static pointer
-nvSetup(pointer module, pointer opts, int *errmaj, int *errmin)
+static void *
+nvSetup(void *module, void *opts, int *errmaj, int *errmin)
 {
     static Bool setupDone = FALSE;
 
@@ -711,7 +710,7 @@ nvSetup(pointer module, pointer opts, int *errmaj, int *errmin)
          * The return value must be non-NULL on success even though there
          * is no TearDownProc.
          */
-        return (pointer)1;
+        return (void*)1;
     } else {
         if (errmaj) *errmaj = LDR_ONCEONLY;
         return NULL;
@@ -1026,7 +1025,7 @@ NVLeaveVTVBE(ScrnInfoPtr pScrn)
 }
 
 static void
-NVBlockHandler (ScreenPtr pScreen, pointer pTimeout)
+NVBlockHandler (ScreenPtr pScreen, void *pTimeout)
 {
     ScrnInfoPtr   pScrnInfo = xf86ScreenToScrn(pScreen);
     NVPtr         pNv = NVPTR(pScrnInfo);
@@ -2613,7 +2612,7 @@ NVRandRSetConfig(ScrnInfoPtr pScrn, xorgRRConfig *config)
 }
 
 static Bool
-NVDriverFunc(ScrnInfoPtr pScrn, xorgDriverFuncOp op, pointer data)
+NVDriverFunc(ScrnInfoPtr pScrn, xorgDriverFuncOp op, void *data)
 {
     switch(op) {
        case RR_GET_INFO:

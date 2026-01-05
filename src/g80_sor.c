@@ -312,7 +312,7 @@ G80SorCreateResources(xf86OutputPtr output)
     s = "aspect";
     err = RRChangeOutputProperty(output->randr_output, properties.scale.atom,
                                  XA_STRING, 8, PropModeReplace, strlen(s),
-                                 (pointer)s, FALSE, FALSE);
+                                 s, FALSE, FALSE);
     if(err)
         xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
                    "Failed to set scaling property for %s: error %d\n",
