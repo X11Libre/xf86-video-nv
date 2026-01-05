@@ -64,18 +64,18 @@ static void NVPutOverlayImage(ScrnInfoPtr pScrnInfo,
                               short dst_w, short dst_h,
                               RegionPtr cliplist);
 
-static int  NVSetOverlayPortAttribute(ScrnInfoPtr, Atom, INT32, pointer);
-static int  NVGetOverlayPortAttribute(ScrnInfoPtr, Atom ,INT32 *, pointer);
-static int  NVSetBlitPortAttribute(ScrnInfoPtr, Atom, INT32, pointer);
-static int  NVGetBlitPortAttribute(ScrnInfoPtr, Atom ,INT32 *, pointer);
+static int  NVSetOverlayPortAttribute(ScrnInfoPtr, Atom, INT32, void*);
+static int  NVGetOverlayPortAttribute(ScrnInfoPtr, Atom ,INT32 *, void*);
+static int  NVSetBlitPortAttribute(ScrnInfoPtr, Atom, INT32, void*);
+static int  NVGetBlitPortAttribute(ScrnInfoPtr, Atom ,INT32 *, void*);
 
 
-static void NVStopOverlayVideo(ScrnInfoPtr, pointer, Bool);
-static void NVStopBlitVideo(ScrnInfoPtr, pointer, Bool);
+static void NVStopOverlayVideo(ScrnInfoPtr, void*, Bool);
+static void NVStopBlitVideo(ScrnInfoPtr, void*, Bool);
 
-static int  NVPutImage( ScrnInfoPtr, short, short, short, short, short, short, short, short, int, unsigned char*, short, short, Bool, RegionPtr, pointer, DrawablePtr);
+static int  NVPutImage( ScrnInfoPtr, short, short, short, short, short, short, short, short, int, unsigned char*, short, short, Bool, RegionPtr, void*, DrawablePtr);
 
-static void NVQueryBestSize(ScrnInfoPtr, Bool, short, short, short, short, unsigned int *, unsigned int *, pointer);
+static void NVQueryBestSize(ScrnInfoPtr, Bool, short, short, short, short, unsigned int *, unsigned int *, void*);
 static int  NVQueryImageAttributes(ScrnInfoPtr, int, unsigned short *, unsigned short *,  int *, int *);
 
 static void NVVideoTimerCallback(ScrnInfoPtr, Time);
@@ -364,7 +364,7 @@ NVSetupBlitVideo (ScreenPtr pScreen)
 
     pPriv = (NVPortPrivPtr)(&adapt->pPortPrivates[NUM_BLIT_PORTS]);
     for(i = 0; i < NUM_BLIT_PORTS; i++)
-       adapt->pPortPrivates[i].ptr = (pointer)(pPriv);
+       adapt->pPortPrivates[i].ptr = pPriv;
 
     if(pNv->WaitVSyncPossible) {
        adapt->pAttributes          = NVBlitAttributes;
@@ -424,7 +424,7 @@ NVSetupOverlayVideo (ScreenPtr pScreen)
     adapt->nPorts               = 1;
     adapt->pPortPrivates        = (DevUnion*)(&adapt[1]);
     pPriv                       = (NVPortPrivPtr)(&adapt->pPortPrivates[1]);
-    adapt->pPortPrivates[0].ptr = (pointer)(pPriv);
+    adapt->pPortPrivates[0].ptr = pPriv;
     adapt->pAttributes          = NVOverlayAttributes;
     adapt->nAttributes          = NUM_OVERLAY_ATTRIBUTES;
     adapt->pImages              = NVImages;
@@ -638,7 +638,7 @@ NVPutBlitImage (
 static void NVStopOverlayVideo
 (
     ScrnInfoPtr pScrnInfo,
-    pointer     data,
+    void       *data,
     Bool        Exit
 )
 {
@@ -666,7 +666,7 @@ static void NVStopOverlayVideo
 static void NVStopBlitVideo
 (
     ScrnInfoPtr pScrnInfo,
-    pointer     data,
+    void       *data,
     Bool        Exit
 )
 {
@@ -677,7 +677,7 @@ static int NVSetOverlayPortAttribute
     ScrnInfoPtr pScrnInfo,
     Atom        attribute,
     INT32       value,
-    pointer     data
+    void       *data
 )
 {
     NVPortPrivPtr pPriv = (NVPortPrivPtr)data;
@@ -747,7 +747,7 @@ static int NVGetOverlayPortAttribute
     ScrnInfoPtr  pScrnInfo,
     Atom         attribute,
     INT32       *value,
-    pointer      data
+    void        *data
 )
 {
     NVPortPrivPtr pPriv = (NVPortPrivPtr)data;
@@ -779,7 +779,7 @@ static int NVSetBlitPortAttribute
     ScrnInfoPtr pScrnInfo,
     Atom        attribute,
     INT32       value,
-    pointer     data
+    void       *data
 )
 {
     NVPortPrivPtr pPriv = (NVPortPrivPtr)data;
@@ -803,7 +803,7 @@ static int NVGetBlitPortAttribute
     ScrnInfoPtr  pScrnInfo,
     Atom         attribute,
     INT32       *value,
-    pointer      data
+    void        *data
 )
 {
     NVPortPrivPtr pPriv = (NVPortPrivPtr)data;
@@ -830,7 +830,7 @@ static void NVQueryBestSize
     short         drw_h,
     unsigned int *p_w,
     unsigned int *p_h,
-    pointer       data
+    void         *data
 )
 {
     if(vid_w > (drw_w << 3))
@@ -996,7 +996,7 @@ static int NVPutImage
     short        height,
     Bool         Sync,
     RegionPtr    clipBoxes,
-    pointer      data,
+    void        *data,
     DrawablePtr  pDraw
 )
 {
@@ -1349,7 +1349,7 @@ NVAllocSurface (
     surface->pScrn = pScrnInfo;
     surface->pitches = &pPriv->pitch;
     surface->offsets = &pPriv->offset;
-    surface->devPrivate.ptr = (pointer)pPriv;
+    surface->devPrivate.ptr = pPriv;
     surface->id = id;
 
     /* grab the video */
@@ -1398,7 +1398,7 @@ NVGetSurfaceAttribute (
     NVPtr pNv = NVPTR(pScrnInfo);
     NVPortPrivPtr pPriv = GET_OVERLAY_PRIVATE(pNv);
 
-    return NVGetOverlayPortAttribute(pScrnInfo, attribute, value, (pointer)pPriv);
+    return NVGetOverlayPortAttribute(pScrnInfo, attribute, value, pPriv);
 }
 
 static int
@@ -1411,7 +1411,7 @@ NVSetSurfaceAttribute(
     NVPtr pNv = NVPTR(pScrnInfo);
     NVPortPrivPtr pPriv = GET_OVERLAY_PRIVATE(pNv);
 
-    return NVSetOverlayPortAttribute(pScrnInfo, attribute, value, (pointer)pPriv);
+    return NVSetOverlayPortAttribute(pScrnInfo, attribute, value, pPriv);
 }
 
 static int
