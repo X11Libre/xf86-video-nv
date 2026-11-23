@@ -71,9 +71,8 @@ typedef unsigned int   U032;
 #endif
 
 #define WRITE_PUT(pNv, data) {       \
-  volatile CARD8 scratch;            \
   _NV_FENCE()                        \
-  scratch = (pNv)->FbStart[0];       \
+  (void) *(volatile CARD8 *)(pNv)->FbStart; \
   (pNv)->FIFO[0x0010] = (data) << 2; \
   mem_barrier();                     \
 }
