@@ -215,28 +215,28 @@ G80SorTMDSModeFixup(xf86OutputPtr output, DisplayModePtr mode,
     if(modes) {
         // Find the preferred mode and use that as the "native" mode.
         // If no preferred mode is available, use the first one.
-        DisplayModePtr mode;
+        DisplayModePtr native;
 
         // Find the preferred mode.
-        for(mode = modes; mode; mode = mode->next) {
-            if(mode->type & M_T_PREFERRED) {
+        for(native = modes; native; native = native->next) {
+            if(native->type & M_T_PREFERRED) {
                 xf86DrvMsgVerb(scrnIndex, X_INFO, 5,
                                "%s: preferred mode is %s\n",
-                               output->name, mode->name);
+                               output->name, native->name);
                 break;
             }
         }
 
         // XXX: May not want to allow scaling if no preferred mode is found.
-        if(!mode) {
-            mode = modes;
+        if(!native) {
+            native = modes;
             xf86DrvMsgVerb(scrnIndex, X_INFO, 5,
                     "%s: no preferred mode found, using %s\n",
-                    output->name, mode->name);
+                    output->name, native->name);
         }
 
-        pPriv->nativeMode = xf86DuplicateMode(mode);
-        G80CrtcDoModeFixup(pPriv->nativeMode, mode);
+        pPriv->nativeMode = xf86DuplicateMode(native);
+        G80CrtcDoModeFixup(pPriv->nativeMode, native);
     }
 
     return G80SorModeFixup(output, mode, adjusted_mode);
