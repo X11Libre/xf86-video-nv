@@ -1259,7 +1259,7 @@ static int NVQueryImageAttributes
 static void NVVideoTimerCallback
 (
     ScrnInfoPtr pScrnInfo,
-    Time currentTime
+    Time now
 )
 {
     NVPtr         pNv = NVPTR(pScrnInfo);
@@ -1282,11 +1282,11 @@ static void NVVideoTimerCallback
     }
 
     if(pOverPriv) {
-         if(pOverPriv->videoTime < currentTime) {
+         if(pOverPriv->videoTime < now) {
 	    if(pOverPriv->videoStatus & OFF_TIMER) {
 		NVStopOverlay(pScrnInfo);
 		pOverPriv->videoStatus = FREE_TIMER;
-                pOverPriv->videoTime = currentTime + FREE_DELAY;
+                pOverPriv->videoTime = now + FREE_DELAY;
                 needCallback = TRUE;
 	    } else
             if(pOverPriv->videoStatus & FREE_TIMER) {
@@ -1299,7 +1299,7 @@ static void NVVideoTimerCallback
     }
 
     if(pBlitPriv) {
-        if(pBlitPriv->videoTime < currentTime) {
+        if(pBlitPriv->videoTime < now) {
             NVFreeBlitMemory(pScrnInfo);
             pBlitPriv->videoStatus = 0;
         } else {
