@@ -87,3 +87,5 @@ typedef struct G80Rec {
 } G80Rec, *G80Ptr;
 
 #define G80PTR(p) ((G80Ptr)((p)->driverPrivate))
+
+Bool G80GetScrnInfoRec(PciChipsets *chips, int chip);
