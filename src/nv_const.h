@@ -17,4 +17,11 @@
  #define SUBDEVICE_ID(p)  (p)->subdevice_id
  #define CHIP_REVISION(p) (p)->revision
 
+#ifndef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+#ifndef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
 #endif /* __NV_CONST_H__ */

@@ -1116,7 +1116,7 @@ RivaScreenInit(ScreenPtr pScreen, int argc, char **argv)
     AvailFBArea.x1 = 0;
     AvailFBArea.y1 = 0;
     AvailFBArea.x2 = pScrn->displayWidth;
-    AvailFBArea.y2 = (min(pRiva->FbUsableSize, 32*1024*1024)) /
+    AvailFBArea.y2 = (MIN(pRiva->FbUsableSize, 32*1024*1024)) /
                      (pScrn->displayWidth * pScrn->bitsPerPixel / 8);
     xf86InitFBManager(pScreen, &AvailFBArea);
 

@@ -2373,7 +2373,7 @@ NVScreenInit(ScreenPtr pScreen, int argc, char **argv)
      * changing the pitch.
      */
     if(pNv->RandRRotation)
-        shadowHeight = max(width, height);
+        shadowHeight = MAX(width, height);
     else
         shadowHeight = height;
 
