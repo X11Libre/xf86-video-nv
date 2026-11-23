@@ -74,9 +74,8 @@ static CARD8 NVReadSeq(vgaHWPtr pVga, CARD8 index)
 static void NVWriteAttr(vgaHWPtr pVga, CARD8 index, CARD8 value)
 {
     NVPtr pNv = (NVPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     if (pVga->paletteEnabled)
         index &= ~0x20;
     else
@@ -87,9 +86,8 @@ static void NVWriteAttr(vgaHWPtr pVga, CARD8 index, CARD8 value)
 static CARD8 NVReadAttr(vgaHWPtr pVga, CARD8 index)
 {
     NVPtr pNv = (NVPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     if (pVga->paletteEnabled)
         index &= ~0x20;
     else
@@ -110,18 +108,16 @@ static CARD8 NVReadMiscOut(vgaHWPtr pVga)
 static void NVEnablePalette(vgaHWPtr pVga)
 {
     NVPtr pNv = (NVPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     VGA_WR08(pNv->PCIO, VGA_ATTR_INDEX, 0x00);
     pVga->paletteEnabled = TRUE;
 }
 static void NVDisablePalette(vgaHWPtr pVga)
 {
     NVPtr pNv = (NVPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pNv->PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     VGA_WR08(pNv->PCIO, VGA_ATTR_INDEX, 0x20);
     pVga->paletteEnabled = FALSE;
 }

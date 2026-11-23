@@ -132,7 +132,6 @@ G80DacLoadDetect(xf86OutputPtr output)
     G80OutputPrivPtr pPriv = output->driver_private;
     const int scrnIndex = pScrn->scrnIndex;
     const int dacOff = 2048 * pPriv->or;
-    int sigstate;
     CARD32 load, tmp;
 
     xf86DrvMsg(scrnIndex, X_PROBED, "Trying load detection on VGA%i ... ",
@@ -143,9 +142,9 @@ G80DacLoadDetect(xf86OutputPtr output)
     pNv->reg[(0x0061A004+dacOff)/4] = 0x80150000;
     while(pNv->reg[(0x0061A004+dacOff)/4] & 0x80000000);
     pNv->reg[(0x0061A00C+dacOff)/4] = pNv->loadVal | 0x100000;
-    sigstate = xf86BlockSIGIO();
+    input_lock();
     usleep(45000);
-    xf86UnblockSIGIO(sigstate);
+    input_unlock();
     load = pNv->reg[(0x0061A00C+dacOff)/4];
     pNv->reg[(0x0061A00C+dacOff)/4] = 0;
     pNv->reg[(0x0061A004+dacOff)/4] = 0x80000000 | tmp;

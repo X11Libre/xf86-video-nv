@@ -68,9 +68,8 @@ static CARD8 RivaReadSeq(vgaHWPtr pVga, CARD8 index)
 static void RivaWriteAttr(vgaHWPtr pVga, CARD8 index, CARD8 value)
 {
     RivaPtr pRiva = (RivaPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     if (pVga->paletteEnabled)
         index &= ~0x20;
     else
@@ -81,9 +80,8 @@ static void RivaWriteAttr(vgaHWPtr pVga, CARD8 index, CARD8 value)
 static CARD8 RivaReadAttr(vgaHWPtr pVga, CARD8 index)
 {
     RivaPtr pRiva = (RivaPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     if (pVga->paletteEnabled)
         index &= ~0x20;
     else
@@ -104,18 +102,16 @@ static CARD8 RivaReadMiscOut(vgaHWPtr pVga)
 static void RivaEnablePalette(vgaHWPtr pVga)
 {
     RivaPtr pRiva = (RivaPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     VGA_WR08(pRiva->riva.PCIO, VGA_ATTR_INDEX, 0x00);
     pVga->paletteEnabled = TRUE;
 }
 static void RivaDisablePalette(vgaHWPtr pVga)
 {
     RivaPtr pRiva = (RivaPtr)pVga->MMIOBase;
-    volatile CARD8 tmp;
 
-    tmp = VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
+    (void) VGA_RD08(pRiva->riva.PCIO, pVga->IOBase + VGA_IN_STAT_1_OFFSET);
     VGA_WR08(pRiva->riva.PCIO, VGA_ATTR_INDEX, 0x20);
     pVga->paletteEnabled = FALSE;
 }

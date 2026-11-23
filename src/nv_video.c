@@ -115,22 +115,22 @@ XF86VideoFormatRec NVFormats[NUM_FORMATS_ALL] =
 #define NUM_OVERLAY_ATTRIBUTES 9
 XF86AttributeRec NVOverlayAttributes[NUM_OVERLAY_ATTRIBUTES] =
 {
-   {XvSettable | XvGettable, 0, 1, "XV_DOUBLE_BUFFER"},
-   {XvSettable | XvGettable, 0, (1 << 24) - 1, "XV_COLORKEY"},
-   {XvSettable | XvGettable, 0, 1, "XV_AUTOPAINT_COLORKEY"},
-   {XvSettable             , 0, 0, "XV_SET_DEFAULTS"},
-   {XvSettable | XvGettable, -512, 511, "XV_BRIGHTNESS"},
-   {XvSettable | XvGettable, 0, 8191, "XV_CONTRAST"},
-   {XvSettable | XvGettable, 0, 8191, "XV_SATURATION"},
-   {XvSettable | XvGettable, 0, 360, "XV_HUE"},
-   {XvSettable | XvGettable, 0, 1, "XV_ITURBT_709"}
+   {XvSettable | XvGettable, 0, 1, (char *) "XV_DOUBLE_BUFFER"},
+   {XvSettable | XvGettable, 0, (1 << 24) - 1, (char *) "XV_COLORKEY"},
+   {XvSettable | XvGettable, 0, 1, (char *) "XV_AUTOPAINT_COLORKEY"},
+   {XvSettable             , 0, 0, (char *) "XV_SET_DEFAULTS"},
+   {XvSettable | XvGettable, -512, 511, (char *) "XV_BRIGHTNESS"},
+   {XvSettable | XvGettable, 0, 8191, (char *) "XV_CONTRAST"},
+   {XvSettable | XvGettable, 0, 8191, (char *) "XV_SATURATION"},
+   {XvSettable | XvGettable, 0, 360, (char *) "XV_HUE"},
+   {XvSettable | XvGettable, 0, 1, (char *) "XV_ITURBT_709"}
 };
 
 #define NUM_BLIT_ATTRIBUTES 2
 XF86AttributeRec NVBlitAttributes[NUM_BLIT_ATTRIBUTES] =
 {
-   {XvSettable             , 0, 0, "XV_SET_DEFAULTS"},
-   {XvSettable | XvGettable, 0, 1, "XV_SYNC_TO_VBLANK"}
+   {XvSettable             , 0, 0, (char *) "XV_SET_DEFAULTS"},
+   {XvSettable | XvGettable, 0, 1, (char *) "XV_SYNC_TO_VBLANK"}
 };
 
 
@@ -1259,7 +1259,7 @@ static int NVQueryImageAttributes
 static void NVVideoTimerCallback
 (
     ScrnInfoPtr pScrnInfo,
-    Time currentTime
+    Time now
 )
 {
     NVPtr         pNv = NVPTR(pScrnInfo);
@@ -1282,11 +1282,11 @@ static void NVVideoTimerCallback
     }
 
     if(pOverPriv) {
-         if(pOverPriv->videoTime < currentTime) {
+         if(pOverPriv->videoTime < now) {
 	    if(pOverPriv->videoStatus & OFF_TIMER) {
 		NVStopOverlay(pScrnInfo);
 		pOverPriv->videoStatus = FREE_TIMER;
-                pOverPriv->videoTime = currentTime + FREE_DELAY;
+                pOverPriv->videoTime = now + FREE_DELAY;
                 needCallback = TRUE;
 	    } else
             if(pOverPriv->videoStatus & FREE_TIMER) {
@@ -1299,7 +1299,7 @@ static void NVVideoTimerCallback
     }
 
     if(pBlitPriv) {
-        if(pBlitPriv->videoTime < currentTime) {
+        if(pBlitPriv->videoTime < now) {
             NVFreeBlitMemory(pScrnInfo);
             pBlitPriv->videoStatus = 0;
         } else {

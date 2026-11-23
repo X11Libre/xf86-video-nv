@@ -224,8 +224,9 @@ G80CrtcSetPClk(xf86CrtcPtr crtc)
         pNv->reg[(0x00614104+headOff)/4] = lo;
         pNv->reg[(0x00614108+headOff)/4] = hi;
     } else {
-        int n, m, pl;
         CARD32 r = pNv->reg[(0x00614104+headOff)/4];
+        /* Keep the current setting if G80CalcPLL2() finds no PLL values. */
+        int n = r & 0xff, m = (r >> 8) & 0xff, pl = (r >> 16) & 0x3f;
 
         pNv->reg[(0x00614100+headOff)/4] = 0x50000610;
         r &= 0xffc00000;

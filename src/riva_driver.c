@@ -572,10 +572,9 @@ RivaPreInit(ScrnInfoPtr pScrn, int flags)
 	pRiva->FbAddress = pRiva->pEnt->device->MemBase;
 	from = X_CONFIG;
     } else {
-	int i = 1;
-	pRiva->FbBaseReg = i;
-	if (MEMBASE(pRiva->PciInfo, i) != 0) {
-	    pRiva->FbAddress = MEMBASE(pRiva->PciInfo, i) & 0xff800000;
+	pRiva->FbBaseReg = 1;
+	if (MEMBASE(pRiva->PciInfo, 1) != 0) {
+	    pRiva->FbAddress = MEMBASE(pRiva->PciInfo, 1) & 0xff800000;
 	    from = X_PROBED;
 	} else {
 	    xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
@@ -601,9 +600,8 @@ RivaPreInit(ScrnInfoPtr pScrn, int flags)
 	pRiva->IOAddress = pRiva->pEnt->device->IOBase;
 	from = X_CONFIG;
     } else {
-	int i = 0;
-	if (MEMBASE(pRiva->PciInfo, i) != 0) {
-	    pRiva->IOAddress = MEMBASE(pRiva->PciInfo, i) & 0xffffc000;
+	if (MEMBASE(pRiva->PciInfo, 0) != 0) {
+	    pRiva->IOAddress = MEMBASE(pRiva->PciInfo, 0) & 0xffffc000;
 	    from = X_PROBED;
 	} else {
 	    xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
